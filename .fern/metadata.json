@@ -5,7 +5,7 @@
   "generatorConfig": {
     "client_class_name": "DtgAgentSdk"
   },
-  "originGitCommit": "4de4278eb8d8062d99d164f41db7caaeb77654d1",
+  "originGitCommit": "b3012208b6680660af4e6a3efc10fdf141ac259d",
   "originGitCommitIsDirty": true,
   "invokedBy": "manual",
   "requestedVersion": "0.1.2",
