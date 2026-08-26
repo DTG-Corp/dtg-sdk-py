@@ -6,10 +6,16 @@ from json.decoder import JSONDecodeError
 from ..core.api_error import ApiError
 from ..core.client_wrapper import AsyncClientWrapper, SyncClientWrapper
 from ..core.http_response import AsyncHttpResponse, HttpResponse
+from ..core.jsonable_encoder import encode_path_param
 from ..core.parse_error import ParsingError
 from ..core.pydantic_utilities import parse_obj_as
 from ..core.request_options import RequestOptions
 from ..core.serialization import convert_and_respect_annotation_metadata
+from ..errors.content_too_large_error import ContentTooLargeError
+from ..errors.forbidden_error import ForbiddenError
+from ..errors.not_found_error import NotFoundError
+from ..errors.too_many_requests_error import TooManyRequestsError
+from ..errors.unauthorized_error import UnauthorizedError
 from ..types.chat_completion import ChatCompletion
 from ..types.chat_message import ChatMessage
 from ..types.model_list import ModelList
@@ -64,8 +70,6 @@ class RawGatewayClient:
         *,
         model: str,
         messages: typing.Sequence[ChatMessage],
-        hermes_session_id: typing.Optional[str] = None,
-        hermes_thread_id: typing.Optional[str] = None,
         temperature: typing.Optional[float] = OMIT,
         stream: typing.Optional[bool] = OMIT,
         session_id: typing.Optional[str] = OMIT,
@@ -76,23 +80,19 @@ class RawGatewayClient:
         Parameters
         ----------
         model : str
-            ID của agent (UUID).
+            ID của agent (UUID) trên gateway `/v1/chat/completions`.
 
         messages : typing.Sequence[ChatMessage]
-
-        hermes_session_id : typing.Optional[str]
-            Session tùy chỉnh phía client.
-
-        hermes_thread_id : typing.Optional[str]
-            Thread tùy chỉnh phía client.
 
         temperature : typing.Optional[float]
 
         stream : typing.Optional[bool]
 
         session_id : typing.Optional[str]
+            Session ID tùy chỉnh phía client (được orchestrator namespace theo user để chống xung đột).
 
         thread_id : typing.Optional[str]
+            Thread ID con trong session (tùy chỉnh phía client, namespace theo user).
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -117,8 +117,6 @@ class RawGatewayClient:
             },
             headers={
                 "content-type": "application/json",
-                "X-Hermes-Session-Id": str(hermes_session_id) if hermes_session_id is not None else None,
-                "X-Hermes-Thread-Id": str(hermes_thread_id) if hermes_thread_id is not None else None,
             },
             request_options=request_options,
             omit=OMIT,
@@ -133,6 +131,194 @@ class RawGatewayClient:
                     ),
                 )
                 return HttpResponse(response=_response, data=_data)
+            if _response.status_code == 401:
+                raise UnauthorizedError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        typing.Any,
+                        parse_obj_as(
+                            type_=typing.Any,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
+            if _response.status_code == 403:
+                raise ForbiddenError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        typing.Any,
+                        parse_obj_as(
+                            type_=typing.Any,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
+            if _response.status_code == 404:
+                raise NotFoundError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        typing.Any,
+                        parse_obj_as(
+                            type_=typing.Any,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
+            if _response.status_code == 413:
+                raise ContentTooLargeError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        typing.Any,
+                        parse_obj_as(
+                            type_=typing.Any,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
+            if _response.status_code == 429:
+                raise TooManyRequestsError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        typing.Any,
+                        parse_obj_as(
+                            type_=typing.Any,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
+            _response_json = _response.json()
+        except JSONDecodeError:
+            raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
+        raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
+
+    def create_chat_completion_by_agent_path(
+        self,
+        agent_id: str,
+        *,
+        messages: typing.Sequence[ChatMessage],
+        model: typing.Optional[str] = OMIT,
+        temperature: typing.Optional[float] = OMIT,
+        stream: typing.Optional[bool] = OMIT,
+        session_id: typing.Optional[str] = OMIT,
+        thread_id: typing.Optional[str] = OMIT,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> HttpResponse[ChatCompletion]:
+        """
+        Parameters
+        ----------
+        agent_id : str
+
+        messages : typing.Sequence[ChatMessage]
+
+        model : typing.Optional[str]
+            Tuỳ chọn; agent đã xác định bởi path.
+
+        temperature : typing.Optional[float]
+
+        stream : typing.Optional[bool]
+
+        session_id : typing.Optional[str]
+            Session ID tùy chỉnh phía client (được orchestrator namespace theo user để chống xung đột).
+
+        thread_id : typing.Optional[str]
+            Thread ID con trong session (tùy chỉnh phía client, namespace theo user).
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        HttpResponse[ChatCompletion]
+            ChatCompletion (hoặc SSE stream khi stream=true)
+        """
+        _response = self._client_wrapper.httpx_client.request(
+            f"webhook/{encode_path_param(agent_id)}/v1/chat/completions",
+            method="POST",
+            json={
+                "model": model,
+                "messages": convert_and_respect_annotation_metadata(
+                    object_=messages, annotation=typing.Sequence[ChatMessage], direction="write"
+                ),
+                "temperature": temperature,
+                "stream": stream,
+                "session_id": session_id,
+                "thread_id": thread_id,
+            },
+            headers={
+                "content-type": "application/json",
+            },
+            request_options=request_options,
+            omit=OMIT,
+        )
+        try:
+            if 200 <= _response.status_code < 300:
+                _data = typing.cast(
+                    ChatCompletion,
+                    parse_obj_as(
+                        type_=ChatCompletion,  # type: ignore
+                        object_=_response.json(),
+                    ),
+                )
+                return HttpResponse(response=_response, data=_data)
+            if _response.status_code == 401:
+                raise UnauthorizedError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        typing.Any,
+                        parse_obj_as(
+                            type_=typing.Any,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
+            if _response.status_code == 403:
+                raise ForbiddenError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        typing.Any,
+                        parse_obj_as(
+                            type_=typing.Any,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
+            if _response.status_code == 404:
+                raise NotFoundError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        typing.Any,
+                        parse_obj_as(
+                            type_=typing.Any,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
+            if _response.status_code == 413:
+                raise ContentTooLargeError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        typing.Any,
+                        parse_obj_as(
+                            type_=typing.Any,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
+            if _response.status_code == 429:
+                raise TooManyRequestsError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        typing.Any,
+                        parse_obj_as(
+                            type_=typing.Any,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
@@ -190,8 +376,6 @@ class AsyncRawGatewayClient:
         *,
         model: str,
         messages: typing.Sequence[ChatMessage],
-        hermes_session_id: typing.Optional[str] = None,
-        hermes_thread_id: typing.Optional[str] = None,
         temperature: typing.Optional[float] = OMIT,
         stream: typing.Optional[bool] = OMIT,
         session_id: typing.Optional[str] = OMIT,
@@ -202,23 +386,19 @@ class AsyncRawGatewayClient:
         Parameters
         ----------
         model : str
-            ID của agent (UUID).
+            ID của agent (UUID) trên gateway `/v1/chat/completions`.
 
         messages : typing.Sequence[ChatMessage]
-
-        hermes_session_id : typing.Optional[str]
-            Session tùy chỉnh phía client.
-
-        hermes_thread_id : typing.Optional[str]
-            Thread tùy chỉnh phía client.
 
         temperature : typing.Optional[float]
 
         stream : typing.Optional[bool]
 
         session_id : typing.Optional[str]
+            Session ID tùy chỉnh phía client (được orchestrator namespace theo user để chống xung đột).
 
         thread_id : typing.Optional[str]
+            Thread ID con trong session (tùy chỉnh phía client, namespace theo user).
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -243,8 +423,6 @@ class AsyncRawGatewayClient:
             },
             headers={
                 "content-type": "application/json",
-                "X-Hermes-Session-Id": str(hermes_session_id) if hermes_session_id is not None else None,
-                "X-Hermes-Thread-Id": str(hermes_thread_id) if hermes_thread_id is not None else None,
             },
             request_options=request_options,
             omit=OMIT,
@@ -259,6 +437,194 @@ class AsyncRawGatewayClient:
                     ),
                 )
                 return AsyncHttpResponse(response=_response, data=_data)
+            if _response.status_code == 401:
+                raise UnauthorizedError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        typing.Any,
+                        parse_obj_as(
+                            type_=typing.Any,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
+            if _response.status_code == 403:
+                raise ForbiddenError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        typing.Any,
+                        parse_obj_as(
+                            type_=typing.Any,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
+            if _response.status_code == 404:
+                raise NotFoundError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        typing.Any,
+                        parse_obj_as(
+                            type_=typing.Any,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
+            if _response.status_code == 413:
+                raise ContentTooLargeError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        typing.Any,
+                        parse_obj_as(
+                            type_=typing.Any,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
+            if _response.status_code == 429:
+                raise TooManyRequestsError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        typing.Any,
+                        parse_obj_as(
+                            type_=typing.Any,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
+            _response_json = _response.json()
+        except JSONDecodeError:
+            raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
+        raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
+
+    async def create_chat_completion_by_agent_path(
+        self,
+        agent_id: str,
+        *,
+        messages: typing.Sequence[ChatMessage],
+        model: typing.Optional[str] = OMIT,
+        temperature: typing.Optional[float] = OMIT,
+        stream: typing.Optional[bool] = OMIT,
+        session_id: typing.Optional[str] = OMIT,
+        thread_id: typing.Optional[str] = OMIT,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> AsyncHttpResponse[ChatCompletion]:
+        """
+        Parameters
+        ----------
+        agent_id : str
+
+        messages : typing.Sequence[ChatMessage]
+
+        model : typing.Optional[str]
+            Tuỳ chọn; agent đã xác định bởi path.
+
+        temperature : typing.Optional[float]
+
+        stream : typing.Optional[bool]
+
+        session_id : typing.Optional[str]
+            Session ID tùy chỉnh phía client (được orchestrator namespace theo user để chống xung đột).
+
+        thread_id : typing.Optional[str]
+            Thread ID con trong session (tùy chỉnh phía client, namespace theo user).
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        AsyncHttpResponse[ChatCompletion]
+            ChatCompletion (hoặc SSE stream khi stream=true)
+        """
+        _response = await self._client_wrapper.httpx_client.request(
+            f"webhook/{encode_path_param(agent_id)}/v1/chat/completions",
+            method="POST",
+            json={
+                "model": model,
+                "messages": convert_and_respect_annotation_metadata(
+                    object_=messages, annotation=typing.Sequence[ChatMessage], direction="write"
+                ),
+                "temperature": temperature,
+                "stream": stream,
+                "session_id": session_id,
+                "thread_id": thread_id,
+            },
+            headers={
+                "content-type": "application/json",
+            },
+            request_options=request_options,
+            omit=OMIT,
+        )
+        try:
+            if 200 <= _response.status_code < 300:
+                _data = typing.cast(
+                    ChatCompletion,
+                    parse_obj_as(
+                        type_=ChatCompletion,  # type: ignore
+                        object_=_response.json(),
+                    ),
+                )
+                return AsyncHttpResponse(response=_response, data=_data)
+            if _response.status_code == 401:
+                raise UnauthorizedError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        typing.Any,
+                        parse_obj_as(
+                            type_=typing.Any,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
+            if _response.status_code == 403:
+                raise ForbiddenError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        typing.Any,
+                        parse_obj_as(
+                            type_=typing.Any,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
+            if _response.status_code == 404:
+                raise NotFoundError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        typing.Any,
+                        parse_obj_as(
+                            type_=typing.Any,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
+            if _response.status_code == 413:
+                raise ContentTooLargeError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        typing.Any,
+                        parse_obj_as(
+                            type_=typing.Any,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
+            if _response.status_code == 429:
+                raise TooManyRequestsError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        typing.Any,
+                        parse_obj_as(
+                            type_=typing.Any,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)

@@ -94,7 +94,7 @@ client.gateway.create_chat_completion(
 <dl>
 <dd>
 
-**model:** `str` — ID của agent (UUID).
+**model:** `str` — ID của agent (UUID) trên gateway `/v1/chat/completions`.
     
 </dd>
 </dl>
@@ -103,22 +103,6 @@ client.gateway.create_chat_completion(
 <dd>
 
 **messages:** `typing.List[ChatMessage]` 
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**hermes_session_id:** `typing.Optional[str]` — Session tùy chỉnh phía client.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**hermes_thread_id:** `typing.Optional[str]` — Thread tùy chỉnh phía client.
     
 </dd>
 </dl>
@@ -142,7 +126,7 @@ client.gateway.create_chat_completion(
 <dl>
 <dd>
 
-**session_id:** `typing.Optional[str]` 
+**session_id:** `typing.Optional[str]` — Session ID tùy chỉnh phía client (được orchestrator namespace theo user để chống xung đột).
     
 </dd>
 </dl>
@@ -150,7 +134,120 @@ client.gateway.create_chat_completion(
 <dl>
 <dd>
 
-**thread_id:** `typing.Optional[str]` 
+**thread_id:** `typing.Optional[str]` — Thread ID con trong session (tùy chỉnh phía client, namespace theo user).
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.gateway.<a href="src/dtgsoft/gateway/client.py">create_chat_completion_by_agent_path</a>(...) -> ChatCompletion</code></summary>
+<dl>
+<dd>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```python
+from dtgsoft import DtgAgentSdk, ChatMessage
+from dtgsoft.environment import DtgAgentSdkEnvironment
+
+client = DtgAgentSdk(
+    token="<token>",
+    environment=DtgAgentSdkEnvironment.PRODUCTION,
+)
+
+client.gateway.create_chat_completion_by_agent_path(
+    agent_id="agent_id",
+    messages=[
+        ChatMessage(
+            role="system",
+            content="content",
+        )
+    ],
+)
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**agent_id:** `str` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**messages:** `typing.List[ChatMessage]` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**model:** `typing.Optional[str]` — Tuỳ chọn; agent đã xác định bởi path.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**temperature:** `typing.Optional[float]` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**stream:** `typing.Optional[bool]` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**session_id:** `typing.Optional[str]` — Session ID tùy chỉnh phía client (được orchestrator namespace theo user để chống xung đột).
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**thread_id:** `typing.Optional[str]` — Thread ID con trong session (tùy chỉnh phía client, namespace theo user).
     
 </dd>
 </dl>
@@ -300,6 +397,38 @@ client.agents.create_agent(
 <dd>
 
 **llm_api_key:** `typing.Optional[str]` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**knowledge_ids:** `typing.Optional[typing.List[str]]` — UUID các knowledge item gắn agent (điền vào dtg_knowledge_ids).
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**enabled_tools:** `typing.Optional[typing.List[str]]` — ID tool từ catalog (dtg_enabled_tools), vd knowledge_rag.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**mcp_dynamic_server_ids:** `typing.Optional[typing.List[str]]` — UUID MCP server động (apimcp) gắn agent.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**mcp_dynamic_tool_filter:** `typing.Optional[typing.Dict[str, typing.Any]]` — Filter tool expose cho agent (Dai Agent) theo từng MCP server động (khóa = UUID server).
     
 </dd>
 </dl>
@@ -533,6 +662,38 @@ client.agents.update_agent(
 <dd>
 
 **llm_api_key:** `typing.Optional[str]` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**knowledge_ids:** `typing.Optional[typing.List[str]]` — Omit/null = giữ nguyên; [] = xoá.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**enabled_tools:** `typing.Optional[typing.List[str]]` — Omit/null = giữ nguyên; [] = xoá.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**mcp_dynamic_server_ids:** `typing.Optional[typing.List[str]]` — Omit/null = giữ nguyên; [] = xoá.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**mcp_dynamic_tool_filter:** `typing.Optional[typing.Dict[str, typing.Any]]` — Omit/null = giữ nguyên; {} = xoá.
     
 </dd>
 </dl>
@@ -1270,7 +1431,7 @@ client.knowledge.create_knowledge(
 <dl>
 <dd>
 
-**content:** `str` 
+**content:** `str` — Tối đa 4 MiB
     
 </dd>
 </dl>
@@ -1646,7 +1807,10 @@ client = DtgAgentSdk(
 )
 
 client.mcp_servers.create_mcp_server_tool(
-    id_="id",
+    id="id",
+    kind="rest",
+    slug="slug",
+    display_name="display_name",
 )
 
 ```
@@ -1671,7 +1835,23 @@ client.mcp_servers.create_mcp_server_tool(
 <dl>
 <dd>
 
-**request:** `McpServerTool` 
+**kind:** `McpServerToolCreateRequestKind` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**slug:** `str` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**display_name:** `str` 
     
 </dd>
 </dl>
@@ -1680,6 +1860,78 @@ client.mcp_servers.create_mcp_server_tool(
 <dd>
 
 **idempotency_key:** `typing.Optional[str]` — Idempotency key cho mutation (tránh double-submit).
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**description:** `typing.Optional[str]` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**base_url:** `typing.Optional[str]` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**rest_resource_path:** `typing.Optional[str]` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**auth_type:** `typing.Optional[McpServerToolCreateRequestAuthType]` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**auth_config:** `typing.Optional[McpAuthConfig]` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**endpoints:** `typing.Optional[typing.List[McpEndpoint]]` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**definition:** `typing.Optional[McpToolDefinition]` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**sort_order:** `typing.Optional[int]` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**is_active:** `typing.Optional[bool]` 
     
 </dd>
 </dl>

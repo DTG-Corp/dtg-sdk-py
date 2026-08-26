@@ -10,11 +10,15 @@ if typing.TYPE_CHECKING:
     from .create_mcp_server_tool_response import CreateMcpServerToolResponse
     from .list_mcp_server_tools_response import ListMcpServerToolsResponse
     from .list_mcp_servers_response import ListMcpServersResponse
+    from .mcp_server_tool_create_request_auth_type import McpServerToolCreateRequestAuthType
+    from .mcp_server_tool_create_request_kind import McpServerToolCreateRequestKind
 _dynamic_imports: typing.Dict[str, str] = {
     "CreateMcpServerResponse": ".create_mcp_server_response",
     "CreateMcpServerToolResponse": ".create_mcp_server_tool_response",
     "ListMcpServerToolsResponse": ".list_mcp_server_tools_response",
     "ListMcpServersResponse": ".list_mcp_servers_response",
+    "McpServerToolCreateRequestAuthType": ".mcp_server_tool_create_request_auth_type",
+    "McpServerToolCreateRequestKind": ".mcp_server_tool_create_request_kind",
 }
 
 
@@ -44,4 +48,6 @@ __all__ = [
     "CreateMcpServerToolResponse",
     "ListMcpServerToolsResponse",
     "ListMcpServersResponse",
+    "McpServerToolCreateRequestAuthType",
+    "McpServerToolCreateRequestKind",
 ]

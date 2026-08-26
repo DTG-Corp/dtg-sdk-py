@@ -5,11 +5,18 @@ import typing
 
 import pydantic
 from ..core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel
+from .mcp_auth_config import McpAuthConfig
+from .mcp_endpoint import McpEndpoint
 from .mcp_server_tool_auth_type import McpServerToolAuthType
 from .mcp_server_tool_kind import McpServerToolKind
+from .mcp_tool_definition import McpToolDefinition
 
 
 class McpServerTool(UniversalBaseModel):
+    """
+    Tool MCP (response sau create/list — auth_config đã redact).
+    """
+
     id: typing.Optional[str] = None
     mcp_server_id: typing.Optional[str] = None
     kind: typing.Optional[McpServerToolKind] = None
@@ -17,13 +24,11 @@ class McpServerTool(UniversalBaseModel):
     display_name: typing.Optional[str] = None
     description: typing.Optional[str] = None
     base_url: typing.Optional[str] = None
+    rest_resource_path: typing.Optional[str] = None
     auth_type: typing.Optional[McpServerToolAuthType] = None
-    auth_config: typing.Optional[typing.Dict[str, typing.Any]] = pydantic.Field(default=None)
-    """
-    Thông tin xác thực (có thể chứa secret — không phơi raw token ở list).
-    """
-
-    endpoints: typing.Optional[typing.List[typing.Dict[str, typing.Any]]] = None
+    auth_config: typing.Optional[McpAuthConfig] = None
+    endpoints: typing.Optional[typing.List[McpEndpoint]] = None
+    definition: typing.Optional[McpToolDefinition] = None
     sort_order: typing.Optional[int] = None
     is_active: typing.Optional[bool] = None
     created_at: typing.Optional[dt.datetime] = None

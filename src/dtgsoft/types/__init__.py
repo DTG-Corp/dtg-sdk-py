@@ -10,53 +10,107 @@ if typing.TYPE_CHECKING:
     from .agent_status import AgentStatus
     from .api_key import ApiKey
     from .api_key_create_response import ApiKeyCreateResponse
+    from .bad_request_error_body import BadRequestErrorBody
+    from .bad_request_error_body_code import BadRequestErrorBodyCode
+    from .bad_request_error_body_status import BadRequestErrorBodyStatus
     from .channel_config import ChannelConfig
     from .channel_config_type import ChannelConfigType
     from .chat_completion import ChatCompletion
     from .chat_completion_usage import ChatCompletionUsage
     from .chat_message import ChatMessage
     from .chat_message_role import ChatMessageRole
+    from .content_too_large_error_body import ContentTooLargeErrorBody
+    from .content_too_large_error_body_code import ContentTooLargeErrorBodyCode
+    from .content_too_large_error_body_status import ContentTooLargeErrorBodyStatus
     from .envelope import Envelope
     from .envelope_status import EnvelopeStatus
+    from .forbidden_error_body import ForbiddenErrorBody
+    from .forbidden_error_body_code import ForbiddenErrorBodyCode
+    from .forbidden_error_body_status import ForbiddenErrorBodyStatus
     from .knowledge import Knowledge
     from .knowledge_content_type import KnowledgeContentType
     from .knowledge_detail import KnowledgeDetail
+    from .mcp_auth_config import McpAuthConfig
+    from .mcp_endpoint import McpEndpoint
+    from .mcp_endpoint_mongo_op import McpEndpointMongoOp
+    from .mcp_endpoint_param import McpEndpointParam
+    from .mcp_endpoint_param_in import McpEndpointParamIn
+    from .mcp_endpoint_param_type import McpEndpointParamType
     from .mcp_server import McpServer
     from .mcp_server_tool import McpServerTool
     from .mcp_server_tool_auth_type import McpServerToolAuthType
     from .mcp_server_tool_kind import McpServerToolKind
+    from .mcp_tool_definition import McpToolDefinition
     from .model import Model
     from .model_list import ModelList
+    from .not_found_error_body import NotFoundErrorBody
+    from .not_found_error_body_code import NotFoundErrorBodyCode
+    from .not_found_error_body_status import NotFoundErrorBodyStatus
     from .ok_response import OkResponse
+    from .open_ai_compat_error import OpenAiCompatError
+    from .open_ai_compat_error_error import OpenAiCompatErrorError
     from .organization import Organization
     from .organization_member import OrganizationMember
     from .organization_member_role import OrganizationMemberRole
+    from .too_many_requests_error_body import TooManyRequestsErrorBody
+    from .too_many_requests_error_body_code import TooManyRequestsErrorBodyCode
+    from .too_many_requests_error_body_status import TooManyRequestsErrorBodyStatus
+    from .unauthorized_error_body import UnauthorizedErrorBody
+    from .unauthorized_error_body_code import UnauthorizedErrorBodyCode
+    from .unauthorized_error_body_status import UnauthorizedErrorBodyStatus
 _dynamic_imports: typing.Dict[str, str] = {
     "Agent": ".agent",
     "AgentStatus": ".agent_status",
     "ApiKey": ".api_key",
     "ApiKeyCreateResponse": ".api_key_create_response",
+    "BadRequestErrorBody": ".bad_request_error_body",
+    "BadRequestErrorBodyCode": ".bad_request_error_body_code",
+    "BadRequestErrorBodyStatus": ".bad_request_error_body_status",
     "ChannelConfig": ".channel_config",
     "ChannelConfigType": ".channel_config_type",
     "ChatCompletion": ".chat_completion",
     "ChatCompletionUsage": ".chat_completion_usage",
     "ChatMessage": ".chat_message",
     "ChatMessageRole": ".chat_message_role",
+    "ContentTooLargeErrorBody": ".content_too_large_error_body",
+    "ContentTooLargeErrorBodyCode": ".content_too_large_error_body_code",
+    "ContentTooLargeErrorBodyStatus": ".content_too_large_error_body_status",
     "Envelope": ".envelope",
     "EnvelopeStatus": ".envelope_status",
+    "ForbiddenErrorBody": ".forbidden_error_body",
+    "ForbiddenErrorBodyCode": ".forbidden_error_body_code",
+    "ForbiddenErrorBodyStatus": ".forbidden_error_body_status",
     "Knowledge": ".knowledge",
     "KnowledgeContentType": ".knowledge_content_type",
     "KnowledgeDetail": ".knowledge_detail",
+    "McpAuthConfig": ".mcp_auth_config",
+    "McpEndpoint": ".mcp_endpoint",
+    "McpEndpointMongoOp": ".mcp_endpoint_mongo_op",
+    "McpEndpointParam": ".mcp_endpoint_param",
+    "McpEndpointParamIn": ".mcp_endpoint_param_in",
+    "McpEndpointParamType": ".mcp_endpoint_param_type",
     "McpServer": ".mcp_server",
     "McpServerTool": ".mcp_server_tool",
     "McpServerToolAuthType": ".mcp_server_tool_auth_type",
     "McpServerToolKind": ".mcp_server_tool_kind",
+    "McpToolDefinition": ".mcp_tool_definition",
     "Model": ".model",
     "ModelList": ".model_list",
+    "NotFoundErrorBody": ".not_found_error_body",
+    "NotFoundErrorBodyCode": ".not_found_error_body_code",
+    "NotFoundErrorBodyStatus": ".not_found_error_body_status",
     "OkResponse": ".ok_response",
+    "OpenAiCompatError": ".open_ai_compat_error",
+    "OpenAiCompatErrorError": ".open_ai_compat_error_error",
     "Organization": ".organization",
     "OrganizationMember": ".organization_member",
     "OrganizationMemberRole": ".organization_member_role",
+    "TooManyRequestsErrorBody": ".too_many_requests_error_body",
+    "TooManyRequestsErrorBodyCode": ".too_many_requests_error_body_code",
+    "TooManyRequestsErrorBodyStatus": ".too_many_requests_error_body_status",
+    "UnauthorizedErrorBody": ".unauthorized_error_body",
+    "UnauthorizedErrorBodyCode": ".unauthorized_error_body_code",
+    "UnauthorizedErrorBodyStatus": ".unauthorized_error_body_status",
 }
 
 
@@ -86,25 +140,52 @@ __all__ = [
     "AgentStatus",
     "ApiKey",
     "ApiKeyCreateResponse",
+    "BadRequestErrorBody",
+    "BadRequestErrorBodyCode",
+    "BadRequestErrorBodyStatus",
     "ChannelConfig",
     "ChannelConfigType",
     "ChatCompletion",
     "ChatCompletionUsage",
     "ChatMessage",
     "ChatMessageRole",
+    "ContentTooLargeErrorBody",
+    "ContentTooLargeErrorBodyCode",
+    "ContentTooLargeErrorBodyStatus",
     "Envelope",
     "EnvelopeStatus",
+    "ForbiddenErrorBody",
+    "ForbiddenErrorBodyCode",
+    "ForbiddenErrorBodyStatus",
     "Knowledge",
     "KnowledgeContentType",
     "KnowledgeDetail",
+    "McpAuthConfig",
+    "McpEndpoint",
+    "McpEndpointMongoOp",
+    "McpEndpointParam",
+    "McpEndpointParamIn",
+    "McpEndpointParamType",
     "McpServer",
     "McpServerTool",
     "McpServerToolAuthType",
     "McpServerToolKind",
+    "McpToolDefinition",
     "Model",
     "ModelList",
+    "NotFoundErrorBody",
+    "NotFoundErrorBodyCode",
+    "NotFoundErrorBodyStatus",
     "OkResponse",
+    "OpenAiCompatError",
+    "OpenAiCompatErrorError",
     "Organization",
     "OrganizationMember",
     "OrganizationMemberRole",
+    "TooManyRequestsErrorBody",
+    "TooManyRequestsErrorBodyCode",
+    "TooManyRequestsErrorBodyStatus",
+    "UnauthorizedErrorBody",
+    "UnauthorizedErrorBodyCode",
+    "UnauthorizedErrorBodyStatus",
 ]

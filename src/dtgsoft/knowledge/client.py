@@ -70,6 +70,7 @@ class KnowledgeClient:
         title : str
 
         content : str
+            Tối đa 4 MiB
 
         idempotency_key : typing.Optional[str]
             Idempotency key cho mutation (tránh double-submit).
@@ -241,6 +242,7 @@ class AsyncKnowledgeClient:
         title : str
 
         content : str
+            Tối đa 4 MiB
 
         idempotency_key : typing.Optional[str]
             Idempotency key cho mutation (tránh double-submit).
