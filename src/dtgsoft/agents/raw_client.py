@@ -11,6 +11,12 @@ from ..core.parse_error import ParsingError
 from ..core.pydantic_utilities import parse_obj_as
 from ..core.request_options import RequestOptions
 from ..core.serialization import convert_and_respect_annotation_metadata
+from ..errors.bad_request_error import BadRequestError
+from ..errors.content_too_large_error import ContentTooLargeError
+from ..errors.forbidden_error import ForbiddenError
+from ..errors.not_found_error import NotFoundError
+from ..errors.too_many_requests_error import TooManyRequestsError
+from ..errors.unauthorized_error import UnauthorizedError
 from ..types.channel_config import ChannelConfig
 from ..types.model_list import ModelList
 from .types.create_agent_response import CreateAgentResponse
@@ -61,6 +67,28 @@ class RawAgentsClient:
                     ),
                 )
                 return HttpResponse(response=_response, data=_data)
+            if _response.status_code == 401:
+                raise UnauthorizedError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        typing.Any,
+                        parse_obj_as(
+                            type_=typing.Any,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
+            if _response.status_code == 429:
+                raise TooManyRequestsError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        typing.Any,
+                        parse_obj_as(
+                            type_=typing.Any,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
@@ -79,6 +107,10 @@ class RawAgentsClient:
         llm_model: typing.Optional[str] = OMIT,
         llm_base_url: typing.Optional[str] = OMIT,
         llm_api_key: typing.Optional[str] = OMIT,
+        knowledge_ids: typing.Optional[typing.Sequence[str]] = OMIT,
+        enabled_tools: typing.Optional[typing.Sequence[str]] = OMIT,
+        mcp_dynamic_server_ids: typing.Optional[typing.Sequence[str]] = OMIT,
+        mcp_dynamic_tool_filter: typing.Optional[typing.Dict[str, typing.Any]] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> HttpResponse[CreateAgentResponse]:
         """
@@ -97,6 +129,18 @@ class RawAgentsClient:
 
         llm_api_key : typing.Optional[str]
 
+        knowledge_ids : typing.Optional[typing.Sequence[str]]
+            UUID các knowledge item gắn agent (điền vào dtg_knowledge_ids).
+
+        enabled_tools : typing.Optional[typing.Sequence[str]]
+            ID tool từ catalog (dtg_enabled_tools), vd knowledge_rag.
+
+        mcp_dynamic_server_ids : typing.Optional[typing.Sequence[str]]
+            UUID MCP server động (apimcp) gắn agent.
+
+        mcp_dynamic_tool_filter : typing.Optional[typing.Dict[str, typing.Any]]
+            Filter tool expose cho agent (Dai Agent) theo từng MCP server động (khóa = UUID server).
+
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -114,6 +158,10 @@ class RawAgentsClient:
                 "llm_model": llm_model,
                 "llm_base_url": llm_base_url,
                 "llm_api_key": llm_api_key,
+                "knowledge_ids": knowledge_ids,
+                "enabled_tools": enabled_tools,
+                "mcp_dynamic_server_ids": mcp_dynamic_server_ids,
+                "mcp_dynamic_tool_filter": mcp_dynamic_tool_filter,
             },
             headers={
                 "content-type": "application/json",
@@ -132,6 +180,61 @@ class RawAgentsClient:
                     ),
                 )
                 return HttpResponse(response=_response, data=_data)
+            if _response.status_code == 400:
+                raise BadRequestError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        typing.Any,
+                        parse_obj_as(
+                            type_=typing.Any,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
+            if _response.status_code == 401:
+                raise UnauthorizedError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        typing.Any,
+                        parse_obj_as(
+                            type_=typing.Any,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
+            if _response.status_code == 403:
+                raise ForbiddenError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        typing.Any,
+                        parse_obj_as(
+                            type_=typing.Any,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
+            if _response.status_code == 413:
+                raise ContentTooLargeError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        typing.Any,
+                        parse_obj_as(
+                            type_=typing.Any,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
+            if _response.status_code == 429:
+                raise TooManyRequestsError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        typing.Any,
+                        parse_obj_as(
+                            type_=typing.Any,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
@@ -172,6 +275,28 @@ class RawAgentsClient:
                     ),
                 )
                 return HttpResponse(response=_response, data=_data)
+            if _response.status_code == 401:
+                raise UnauthorizedError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        typing.Any,
+                        parse_obj_as(
+                            type_=typing.Any,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
+            if _response.status_code == 404:
+                raise NotFoundError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        typing.Any,
+                        parse_obj_as(
+                            type_=typing.Any,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
@@ -222,6 +347,39 @@ class RawAgentsClient:
                     ),
                 )
                 return HttpResponse(response=_response, data=_data)
+            if _response.status_code == 401:
+                raise UnauthorizedError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        typing.Any,
+                        parse_obj_as(
+                            type_=typing.Any,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
+            if _response.status_code == 403:
+                raise ForbiddenError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        typing.Any,
+                        parse_obj_as(
+                            type_=typing.Any,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
+            if _response.status_code == 404:
+                raise NotFoundError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        typing.Any,
+                        parse_obj_as(
+                            type_=typing.Any,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
@@ -241,6 +399,10 @@ class RawAgentsClient:
         llm_model: typing.Optional[str] = OMIT,
         llm_base_url: typing.Optional[str] = OMIT,
         llm_api_key: typing.Optional[str] = OMIT,
+        knowledge_ids: typing.Optional[typing.Sequence[str]] = OMIT,
+        enabled_tools: typing.Optional[typing.Sequence[str]] = OMIT,
+        mcp_dynamic_server_ids: typing.Optional[typing.Sequence[str]] = OMIT,
+        mcp_dynamic_tool_filter: typing.Optional[typing.Dict[str, typing.Any]] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> HttpResponse[UpdateAgentResponse]:
         """
@@ -261,6 +423,18 @@ class RawAgentsClient:
 
         llm_api_key : typing.Optional[str]
 
+        knowledge_ids : typing.Optional[typing.Sequence[str]]
+            Omit/null = giữ nguyên; [] = xoá.
+
+        enabled_tools : typing.Optional[typing.Sequence[str]]
+            Omit/null = giữ nguyên; [] = xoá.
+
+        mcp_dynamic_server_ids : typing.Optional[typing.Sequence[str]]
+            Omit/null = giữ nguyên; [] = xoá.
+
+        mcp_dynamic_tool_filter : typing.Optional[typing.Dict[str, typing.Any]]
+            Omit/null = giữ nguyên; {} = xoá.
+
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -278,6 +452,10 @@ class RawAgentsClient:
                 "llm_model": llm_model,
                 "llm_base_url": llm_base_url,
                 "llm_api_key": llm_api_key,
+                "knowledge_ids": knowledge_ids,
+                "enabled_tools": enabled_tools,
+                "mcp_dynamic_server_ids": mcp_dynamic_server_ids,
+                "mcp_dynamic_tool_filter": mcp_dynamic_tool_filter,
             },
             headers={
                 "content-type": "application/json",
@@ -296,6 +474,61 @@ class RawAgentsClient:
                     ),
                 )
                 return HttpResponse(response=_response, data=_data)
+            if _response.status_code == 400:
+                raise BadRequestError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        typing.Any,
+                        parse_obj_as(
+                            type_=typing.Any,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
+            if _response.status_code == 401:
+                raise UnauthorizedError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        typing.Any,
+                        parse_obj_as(
+                            type_=typing.Any,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
+            if _response.status_code == 403:
+                raise ForbiddenError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        typing.Any,
+                        parse_obj_as(
+                            type_=typing.Any,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
+            if _response.status_code == 404:
+                raise NotFoundError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        typing.Any,
+                        parse_obj_as(
+                            type_=typing.Any,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
+            if _response.status_code == 429:
+                raise TooManyRequestsError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        typing.Any,
+                        parse_obj_as(
+                            type_=typing.Any,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
@@ -575,6 +808,28 @@ class AsyncRawAgentsClient:
                     ),
                 )
                 return AsyncHttpResponse(response=_response, data=_data)
+            if _response.status_code == 401:
+                raise UnauthorizedError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        typing.Any,
+                        parse_obj_as(
+                            type_=typing.Any,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
+            if _response.status_code == 429:
+                raise TooManyRequestsError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        typing.Any,
+                        parse_obj_as(
+                            type_=typing.Any,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
@@ -593,6 +848,10 @@ class AsyncRawAgentsClient:
         llm_model: typing.Optional[str] = OMIT,
         llm_base_url: typing.Optional[str] = OMIT,
         llm_api_key: typing.Optional[str] = OMIT,
+        knowledge_ids: typing.Optional[typing.Sequence[str]] = OMIT,
+        enabled_tools: typing.Optional[typing.Sequence[str]] = OMIT,
+        mcp_dynamic_server_ids: typing.Optional[typing.Sequence[str]] = OMIT,
+        mcp_dynamic_tool_filter: typing.Optional[typing.Dict[str, typing.Any]] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncHttpResponse[CreateAgentResponse]:
         """
@@ -611,6 +870,18 @@ class AsyncRawAgentsClient:
 
         llm_api_key : typing.Optional[str]
 
+        knowledge_ids : typing.Optional[typing.Sequence[str]]
+            UUID các knowledge item gắn agent (điền vào dtg_knowledge_ids).
+
+        enabled_tools : typing.Optional[typing.Sequence[str]]
+            ID tool từ catalog (dtg_enabled_tools), vd knowledge_rag.
+
+        mcp_dynamic_server_ids : typing.Optional[typing.Sequence[str]]
+            UUID MCP server động (apimcp) gắn agent.
+
+        mcp_dynamic_tool_filter : typing.Optional[typing.Dict[str, typing.Any]]
+            Filter tool expose cho agent (Dai Agent) theo từng MCP server động (khóa = UUID server).
+
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -628,6 +899,10 @@ class AsyncRawAgentsClient:
                 "llm_model": llm_model,
                 "llm_base_url": llm_base_url,
                 "llm_api_key": llm_api_key,
+                "knowledge_ids": knowledge_ids,
+                "enabled_tools": enabled_tools,
+                "mcp_dynamic_server_ids": mcp_dynamic_server_ids,
+                "mcp_dynamic_tool_filter": mcp_dynamic_tool_filter,
             },
             headers={
                 "content-type": "application/json",
@@ -646,6 +921,61 @@ class AsyncRawAgentsClient:
                     ),
                 )
                 return AsyncHttpResponse(response=_response, data=_data)
+            if _response.status_code == 400:
+                raise BadRequestError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        typing.Any,
+                        parse_obj_as(
+                            type_=typing.Any,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
+            if _response.status_code == 401:
+                raise UnauthorizedError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        typing.Any,
+                        parse_obj_as(
+                            type_=typing.Any,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
+            if _response.status_code == 403:
+                raise ForbiddenError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        typing.Any,
+                        parse_obj_as(
+                            type_=typing.Any,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
+            if _response.status_code == 413:
+                raise ContentTooLargeError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        typing.Any,
+                        parse_obj_as(
+                            type_=typing.Any,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
+            if _response.status_code == 429:
+                raise TooManyRequestsError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        typing.Any,
+                        parse_obj_as(
+                            type_=typing.Any,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
@@ -686,6 +1016,28 @@ class AsyncRawAgentsClient:
                     ),
                 )
                 return AsyncHttpResponse(response=_response, data=_data)
+            if _response.status_code == 401:
+                raise UnauthorizedError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        typing.Any,
+                        parse_obj_as(
+                            type_=typing.Any,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
+            if _response.status_code == 404:
+                raise NotFoundError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        typing.Any,
+                        parse_obj_as(
+                            type_=typing.Any,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
@@ -736,6 +1088,39 @@ class AsyncRawAgentsClient:
                     ),
                 )
                 return AsyncHttpResponse(response=_response, data=_data)
+            if _response.status_code == 401:
+                raise UnauthorizedError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        typing.Any,
+                        parse_obj_as(
+                            type_=typing.Any,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
+            if _response.status_code == 403:
+                raise ForbiddenError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        typing.Any,
+                        parse_obj_as(
+                            type_=typing.Any,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
+            if _response.status_code == 404:
+                raise NotFoundError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        typing.Any,
+                        parse_obj_as(
+                            type_=typing.Any,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
@@ -755,6 +1140,10 @@ class AsyncRawAgentsClient:
         llm_model: typing.Optional[str] = OMIT,
         llm_base_url: typing.Optional[str] = OMIT,
         llm_api_key: typing.Optional[str] = OMIT,
+        knowledge_ids: typing.Optional[typing.Sequence[str]] = OMIT,
+        enabled_tools: typing.Optional[typing.Sequence[str]] = OMIT,
+        mcp_dynamic_server_ids: typing.Optional[typing.Sequence[str]] = OMIT,
+        mcp_dynamic_tool_filter: typing.Optional[typing.Dict[str, typing.Any]] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncHttpResponse[UpdateAgentResponse]:
         """
@@ -775,6 +1164,18 @@ class AsyncRawAgentsClient:
 
         llm_api_key : typing.Optional[str]
 
+        knowledge_ids : typing.Optional[typing.Sequence[str]]
+            Omit/null = giữ nguyên; [] = xoá.
+
+        enabled_tools : typing.Optional[typing.Sequence[str]]
+            Omit/null = giữ nguyên; [] = xoá.
+
+        mcp_dynamic_server_ids : typing.Optional[typing.Sequence[str]]
+            Omit/null = giữ nguyên; [] = xoá.
+
+        mcp_dynamic_tool_filter : typing.Optional[typing.Dict[str, typing.Any]]
+            Omit/null = giữ nguyên; {} = xoá.
+
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -792,6 +1193,10 @@ class AsyncRawAgentsClient:
                 "llm_model": llm_model,
                 "llm_base_url": llm_base_url,
                 "llm_api_key": llm_api_key,
+                "knowledge_ids": knowledge_ids,
+                "enabled_tools": enabled_tools,
+                "mcp_dynamic_server_ids": mcp_dynamic_server_ids,
+                "mcp_dynamic_tool_filter": mcp_dynamic_tool_filter,
             },
             headers={
                 "content-type": "application/json",
@@ -810,6 +1215,61 @@ class AsyncRawAgentsClient:
                     ),
                 )
                 return AsyncHttpResponse(response=_response, data=_data)
+            if _response.status_code == 400:
+                raise BadRequestError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        typing.Any,
+                        parse_obj_as(
+                            type_=typing.Any,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
+            if _response.status_code == 401:
+                raise UnauthorizedError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        typing.Any,
+                        parse_obj_as(
+                            type_=typing.Any,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
+            if _response.status_code == 403:
+                raise ForbiddenError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        typing.Any,
+                        parse_obj_as(
+                            type_=typing.Any,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
+            if _response.status_code == 404:
+                raise NotFoundError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        typing.Any,
+                        parse_obj_as(
+                            type_=typing.Any,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
+            if _response.status_code == 429:
+                raise TooManyRequestsError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        typing.Any,
+                        parse_obj_as(
+                            type_=typing.Any,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)

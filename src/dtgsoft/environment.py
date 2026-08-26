@@ -4,4 +4,4 @@ import enum
 
 
 class DtgAgentSdkEnvironment(enum.Enum):
-    PRODUCTION = "https://agents.dtgsoft.vn"
+    PRODUCTION = "https://api.like.ai.vn"

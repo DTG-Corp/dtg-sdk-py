@@ -33,12 +33,12 @@ class BaseClientWrapper:
         import platform
 
         headers: typing.Dict[str, str] = {
-            "User-Agent": "dtg-agent-sdk/0.1.0",
+            "User-Agent": "dtg-agent-sdk/0.1.2",
             "X-Fern-Language": "Python",
             "X-Fern-Runtime": f"python/{platform.python_version()}",
             "X-Fern-Platform": f"{platform.system().lower()}/{platform.release()}",
             "X-Fern-SDK-Name": "dtg-agent-sdk",
-            "X-Fern-SDK-Version": "0.1.0",
+            "X-Fern-SDK-Version": "0.1.2",
             **(self.get_custom_headers() or {}),
         }
         headers["Authorization"] = f"Bearer {self._get_token()}"

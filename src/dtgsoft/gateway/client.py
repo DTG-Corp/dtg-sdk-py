@@ -57,8 +57,6 @@ class GatewayClient:
         *,
         model: str,
         messages: typing.Sequence[ChatMessage],
-        hermes_session_id: typing.Optional[str] = None,
-        hermes_thread_id: typing.Optional[str] = None,
         temperature: typing.Optional[float] = OMIT,
         stream: typing.Optional[bool] = OMIT,
         session_id: typing.Optional[str] = OMIT,
@@ -69,23 +67,19 @@ class GatewayClient:
         Parameters
         ----------
         model : str
-            ID của agent (UUID).
+            ID của agent (UUID) trên gateway `/v1/chat/completions`.
 
         messages : typing.Sequence[ChatMessage]
-
-        hermes_session_id : typing.Optional[str]
-            Session tùy chỉnh phía client.
-
-        hermes_thread_id : typing.Optional[str]
-            Thread tùy chỉnh phía client.
 
         temperature : typing.Optional[float]
 
         stream : typing.Optional[bool]
 
         session_id : typing.Optional[str]
+            Session ID tùy chỉnh phía client (được orchestrator namespace theo user để chống xung đột).
 
         thread_id : typing.Optional[str]
+            Thread ID con trong session (tùy chỉnh phía client, namespace theo user).
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -115,8 +109,75 @@ class GatewayClient:
         _response = self._raw_client.create_chat_completion(
             model=model,
             messages=messages,
-            hermes_session_id=hermes_session_id,
-            hermes_thread_id=hermes_thread_id,
+            temperature=temperature,
+            stream=stream,
+            session_id=session_id,
+            thread_id=thread_id,
+            request_options=request_options,
+        )
+        return _response.data
+
+    def create_chat_completion_by_agent_path(
+        self,
+        agent_id: str,
+        *,
+        messages: typing.Sequence[ChatMessage],
+        model: typing.Optional[str] = OMIT,
+        temperature: typing.Optional[float] = OMIT,
+        stream: typing.Optional[bool] = OMIT,
+        session_id: typing.Optional[str] = OMIT,
+        thread_id: typing.Optional[str] = OMIT,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> ChatCompletion:
+        """
+        Parameters
+        ----------
+        agent_id : str
+
+        messages : typing.Sequence[ChatMessage]
+
+        model : typing.Optional[str]
+            Tuỳ chọn; agent đã xác định bởi path.
+
+        temperature : typing.Optional[float]
+
+        stream : typing.Optional[bool]
+
+        session_id : typing.Optional[str]
+            Session ID tùy chỉnh phía client (được orchestrator namespace theo user để chống xung đột).
+
+        thread_id : typing.Optional[str]
+            Thread ID con trong session (tùy chỉnh phía client, namespace theo user).
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        ChatCompletion
+            ChatCompletion (hoặc SSE stream khi stream=true)
+
+        Examples
+        --------
+        from dtgsoft import ChatMessage, DtgAgentSdk
+
+        client = DtgAgentSdk(
+            token="YOUR_TOKEN",
+        )
+        client.gateway.create_chat_completion_by_agent_path(
+            agent_id="agent_id",
+            messages=[
+                ChatMessage(
+                    role="system",
+                    content="content",
+                )
+            ],
+        )
+        """
+        _response = self._raw_client.create_chat_completion_by_agent_path(
+            agent_id,
+            messages=messages,
+            model=model,
             temperature=temperature,
             stream=stream,
             session_id=session_id,
@@ -178,8 +239,6 @@ class AsyncGatewayClient:
         *,
         model: str,
         messages: typing.Sequence[ChatMessage],
-        hermes_session_id: typing.Optional[str] = None,
-        hermes_thread_id: typing.Optional[str] = None,
         temperature: typing.Optional[float] = OMIT,
         stream: typing.Optional[bool] = OMIT,
         session_id: typing.Optional[str] = OMIT,
@@ -190,23 +249,19 @@ class AsyncGatewayClient:
         Parameters
         ----------
         model : str
-            ID của agent (UUID).
+            ID của agent (UUID) trên gateway `/v1/chat/completions`.
 
         messages : typing.Sequence[ChatMessage]
-
-        hermes_session_id : typing.Optional[str]
-            Session tùy chỉnh phía client.
-
-        hermes_thread_id : typing.Optional[str]
-            Thread tùy chỉnh phía client.
 
         temperature : typing.Optional[float]
 
         stream : typing.Optional[bool]
 
         session_id : typing.Optional[str]
+            Session ID tùy chỉnh phía client (được orchestrator namespace theo user để chống xung đột).
 
         thread_id : typing.Optional[str]
+            Thread ID con trong session (tùy chỉnh phía client, namespace theo user).
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -244,8 +299,83 @@ class AsyncGatewayClient:
         _response = await self._raw_client.create_chat_completion(
             model=model,
             messages=messages,
-            hermes_session_id=hermes_session_id,
-            hermes_thread_id=hermes_thread_id,
+            temperature=temperature,
+            stream=stream,
+            session_id=session_id,
+            thread_id=thread_id,
+            request_options=request_options,
+        )
+        return _response.data
+
+    async def create_chat_completion_by_agent_path(
+        self,
+        agent_id: str,
+        *,
+        messages: typing.Sequence[ChatMessage],
+        model: typing.Optional[str] = OMIT,
+        temperature: typing.Optional[float] = OMIT,
+        stream: typing.Optional[bool] = OMIT,
+        session_id: typing.Optional[str] = OMIT,
+        thread_id: typing.Optional[str] = OMIT,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> ChatCompletion:
+        """
+        Parameters
+        ----------
+        agent_id : str
+
+        messages : typing.Sequence[ChatMessage]
+
+        model : typing.Optional[str]
+            Tuỳ chọn; agent đã xác định bởi path.
+
+        temperature : typing.Optional[float]
+
+        stream : typing.Optional[bool]
+
+        session_id : typing.Optional[str]
+            Session ID tùy chỉnh phía client (được orchestrator namespace theo user để chống xung đột).
+
+        thread_id : typing.Optional[str]
+            Thread ID con trong session (tùy chỉnh phía client, namespace theo user).
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        ChatCompletion
+            ChatCompletion (hoặc SSE stream khi stream=true)
+
+        Examples
+        --------
+        import asyncio
+
+        from dtgsoft import AsyncDtgAgentSdk, ChatMessage
+
+        client = AsyncDtgAgentSdk(
+            token="YOUR_TOKEN",
+        )
+
+
+        async def main() -> None:
+            await client.gateway.create_chat_completion_by_agent_path(
+                agent_id="agent_id",
+                messages=[
+                    ChatMessage(
+                        role="system",
+                        content="content",
+                    )
+                ],
+            )
+
+
+        asyncio.run(main())
+        """
+        _response = await self._raw_client.create_chat_completion_by_agent_path(
+            agent_id,
+            messages=messages,
+            model=model,
             temperature=temperature,
             stream=stream,
             session_id=session_id,

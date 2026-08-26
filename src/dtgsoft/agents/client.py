@@ -69,6 +69,10 @@ class AgentsClient:
         llm_model: typing.Optional[str] = OMIT,
         llm_base_url: typing.Optional[str] = OMIT,
         llm_api_key: typing.Optional[str] = OMIT,
+        knowledge_ids: typing.Optional[typing.Sequence[str]] = OMIT,
+        enabled_tools: typing.Optional[typing.Sequence[str]] = OMIT,
+        mcp_dynamic_server_ids: typing.Optional[typing.Sequence[str]] = OMIT,
+        mcp_dynamic_tool_filter: typing.Optional[typing.Dict[str, typing.Any]] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> CreateAgentResponse:
         """
@@ -86,6 +90,18 @@ class AgentsClient:
         llm_base_url : typing.Optional[str]
 
         llm_api_key : typing.Optional[str]
+
+        knowledge_ids : typing.Optional[typing.Sequence[str]]
+            UUID các knowledge item gắn agent (điền vào dtg_knowledge_ids).
+
+        enabled_tools : typing.Optional[typing.Sequence[str]]
+            ID tool từ catalog (dtg_enabled_tools), vd knowledge_rag.
+
+        mcp_dynamic_server_ids : typing.Optional[typing.Sequence[str]]
+            UUID MCP server động (apimcp) gắn agent.
+
+        mcp_dynamic_tool_filter : typing.Optional[typing.Dict[str, typing.Any]]
+            Filter tool expose cho agent (Dai Agent) theo từng MCP server động (khóa = UUID server).
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -113,6 +129,10 @@ class AgentsClient:
             llm_model=llm_model,
             llm_base_url=llm_base_url,
             llm_api_key=llm_api_key,
+            knowledge_ids=knowledge_ids,
+            enabled_tools=enabled_tools,
+            mcp_dynamic_server_ids=mcp_dynamic_server_ids,
+            mcp_dynamic_tool_filter=mcp_dynamic_tool_filter,
             request_options=request_options,
         )
         return _response.data
@@ -192,6 +212,10 @@ class AgentsClient:
         llm_model: typing.Optional[str] = OMIT,
         llm_base_url: typing.Optional[str] = OMIT,
         llm_api_key: typing.Optional[str] = OMIT,
+        knowledge_ids: typing.Optional[typing.Sequence[str]] = OMIT,
+        enabled_tools: typing.Optional[typing.Sequence[str]] = OMIT,
+        mcp_dynamic_server_ids: typing.Optional[typing.Sequence[str]] = OMIT,
+        mcp_dynamic_tool_filter: typing.Optional[typing.Dict[str, typing.Any]] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> UpdateAgentResponse:
         """
@@ -211,6 +235,18 @@ class AgentsClient:
         llm_base_url : typing.Optional[str]
 
         llm_api_key : typing.Optional[str]
+
+        knowledge_ids : typing.Optional[typing.Sequence[str]]
+            Omit/null = giữ nguyên; [] = xoá.
+
+        enabled_tools : typing.Optional[typing.Sequence[str]]
+            Omit/null = giữ nguyên; [] = xoá.
+
+        mcp_dynamic_server_ids : typing.Optional[typing.Sequence[str]]
+            Omit/null = giữ nguyên; [] = xoá.
+
+        mcp_dynamic_tool_filter : typing.Optional[typing.Dict[str, typing.Any]]
+            Omit/null = giữ nguyên; {} = xoá.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -239,6 +275,10 @@ class AgentsClient:
             llm_model=llm_model,
             llm_base_url=llm_base_url,
             llm_api_key=llm_api_key,
+            knowledge_ids=knowledge_ids,
+            enabled_tools=enabled_tools,
+            mcp_dynamic_server_ids=mcp_dynamic_server_ids,
+            mcp_dynamic_tool_filter=mcp_dynamic_tool_filter,
             request_options=request_options,
         )
         return _response.data
@@ -470,6 +510,10 @@ class AsyncAgentsClient:
         llm_model: typing.Optional[str] = OMIT,
         llm_base_url: typing.Optional[str] = OMIT,
         llm_api_key: typing.Optional[str] = OMIT,
+        knowledge_ids: typing.Optional[typing.Sequence[str]] = OMIT,
+        enabled_tools: typing.Optional[typing.Sequence[str]] = OMIT,
+        mcp_dynamic_server_ids: typing.Optional[typing.Sequence[str]] = OMIT,
+        mcp_dynamic_tool_filter: typing.Optional[typing.Dict[str, typing.Any]] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> CreateAgentResponse:
         """
@@ -487,6 +531,18 @@ class AsyncAgentsClient:
         llm_base_url : typing.Optional[str]
 
         llm_api_key : typing.Optional[str]
+
+        knowledge_ids : typing.Optional[typing.Sequence[str]]
+            UUID các knowledge item gắn agent (điền vào dtg_knowledge_ids).
+
+        enabled_tools : typing.Optional[typing.Sequence[str]]
+            ID tool từ catalog (dtg_enabled_tools), vd knowledge_rag.
+
+        mcp_dynamic_server_ids : typing.Optional[typing.Sequence[str]]
+            UUID MCP server động (apimcp) gắn agent.
+
+        mcp_dynamic_tool_filter : typing.Optional[typing.Dict[str, typing.Any]]
+            Filter tool expose cho agent (Dai Agent) theo từng MCP server động (khóa = UUID server).
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -522,6 +578,10 @@ class AsyncAgentsClient:
             llm_model=llm_model,
             llm_base_url=llm_base_url,
             llm_api_key=llm_api_key,
+            knowledge_ids=knowledge_ids,
+            enabled_tools=enabled_tools,
+            mcp_dynamic_server_ids=mcp_dynamic_server_ids,
+            mcp_dynamic_tool_filter=mcp_dynamic_tool_filter,
             request_options=request_options,
         )
         return _response.data
@@ -619,6 +679,10 @@ class AsyncAgentsClient:
         llm_model: typing.Optional[str] = OMIT,
         llm_base_url: typing.Optional[str] = OMIT,
         llm_api_key: typing.Optional[str] = OMIT,
+        knowledge_ids: typing.Optional[typing.Sequence[str]] = OMIT,
+        enabled_tools: typing.Optional[typing.Sequence[str]] = OMIT,
+        mcp_dynamic_server_ids: typing.Optional[typing.Sequence[str]] = OMIT,
+        mcp_dynamic_tool_filter: typing.Optional[typing.Dict[str, typing.Any]] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> UpdateAgentResponse:
         """
@@ -638,6 +702,18 @@ class AsyncAgentsClient:
         llm_base_url : typing.Optional[str]
 
         llm_api_key : typing.Optional[str]
+
+        knowledge_ids : typing.Optional[typing.Sequence[str]]
+            Omit/null = giữ nguyên; [] = xoá.
+
+        enabled_tools : typing.Optional[typing.Sequence[str]]
+            Omit/null = giữ nguyên; [] = xoá.
+
+        mcp_dynamic_server_ids : typing.Optional[typing.Sequence[str]]
+            Omit/null = giữ nguyên; [] = xoá.
+
+        mcp_dynamic_tool_filter : typing.Optional[typing.Dict[str, typing.Any]]
+            Omit/null = giữ nguyên; {} = xoá.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -674,6 +750,10 @@ class AsyncAgentsClient:
             llm_model=llm_model,
             llm_base_url=llm_base_url,
             llm_api_key=llm_api_key,
+            knowledge_ids=knowledge_ids,
+            enabled_tools=enabled_tools,
+            mcp_dynamic_server_ids=mcp_dynamic_server_ids,
+            mcp_dynamic_tool_filter=mcp_dynamic_tool_filter,
             request_options=request_options,
         )
         return _response.data

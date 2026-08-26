@@ -13,6 +13,11 @@ class Agent(UniversalBaseModel):
     status: AgentStatus
     llm_provider: typing.Optional[str] = None
     llm_model: typing.Optional[str] = None
+    llm_base_url: typing.Optional[str] = None
+    knowledge_ids: typing.Optional[typing.List[str]] = None
+    enabled_tools: typing.Optional[typing.List[str]] = None
+    mcp_dynamic_server_ids: typing.Optional[typing.List[str]] = None
+    mcp_dynamic_tool_filter: typing.Optional[typing.Dict[str, typing.Any]] = None
 
     if IS_PYDANTIC_V2:
         model_config: typing.ClassVar[pydantic.ConfigDict] = pydantic.ConfigDict(extra="allow", frozen=True)  # type: ignore # Pydantic v2
