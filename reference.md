@@ -420,6 +420,14 @@ client.agents.create_agent(
 <dl>
 <dd>
 
+**camera_tool_ids:** `typing.Optional[typing.List[str]]` — UUID camera ORG được phép khi bật tool org_cameras (điền vào dtg_camera_tool_ids).
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
 **mcp_dynamic_server_ids:** `typing.Optional[typing.List[str]]` — UUID MCP server động (apimcp) gắn agent.
     
 </dd>
@@ -678,6 +686,14 @@ client.agents.update_agent(
 <dd>
 
 **enabled_tools:** `typing.Optional[typing.List[str]]` — Omit/null = giữ nguyên; [] = xoá.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**camera_tool_ids:** `typing.Optional[typing.List[str]]` — Omit/null = giữ nguyên; [] = xoá. Chỉ hiệu lực khi tool org_cameras được bật.
     
 </dd>
 </dl>
@@ -1582,6 +1598,438 @@ client.knowledge.delete_knowledge(
 <dd>
 
 **idempotency_key:** `typing.Optional[str]` — Idempotency key cho mutation (tránh double-submit).
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+## cameras
+<details><summary><code>client.cameras.<a href="src/dtgsoft/cameras/client.py">list_cameras</a>() -> ListCamerasResponse</code></summary>
+<dl>
+<dd>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```python
+from dtgsoft import DtgAgentSdk
+from dtgsoft.environment import DtgAgentSdkEnvironment
+
+client = DtgAgentSdk(
+    token="<token>",
+    environment=DtgAgentSdkEnvironment.PRODUCTION,
+)
+
+client.cameras.list_cameras()
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.cameras.<a href="src/dtgsoft/cameras/client.py">create_camera</a>(...) -> CreateCameraResponse</code></summary>
+<dl>
+<dd>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```python
+from dtgsoft import DtgAgentSdk
+from dtgsoft.environment import DtgAgentSdkEnvironment
+
+client = DtgAgentSdk(
+    token="<token>",
+    environment=DtgAgentSdkEnvironment.PRODUCTION,
+)
+
+client.cameras.create_camera(
+    display_name="display_name",
+    vendor="generic_rtsp",
+    rtsp_url="rtsp_url",
+)
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**display_name:** `str` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**vendor:** `CameraCreateRequestVendor` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**rtsp_url:** `str` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**idempotency_key:** `typing.Optional[str]` — Idempotency key cho mutation (tránh double-submit).
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**rtsp_username:** `typing.Optional[str]` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**rtsp_password:** `typing.Optional[str]` — Chỉ gửi khi tạo; không bao giờ trả về trong response.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**vendor_config:** `typing.Optional[typing.Dict[str, typing.Any]]` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**enabled:** `typing.Optional[bool]` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**notes:** `typing.Optional[str]` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.cameras.<a href="src/dtgsoft/cameras/client.py">get_camera</a>(...) -> GetCameraResponse</code></summary>
+<dl>
+<dd>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```python
+from dtgsoft import DtgAgentSdk
+from dtgsoft.environment import DtgAgentSdkEnvironment
+
+client = DtgAgentSdk(
+    token="<token>",
+    environment=DtgAgentSdkEnvironment.PRODUCTION,
+)
+
+client.cameras.get_camera(
+    id="id",
+)
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**id:** `str` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.cameras.<a href="src/dtgsoft/cameras/client.py">delete_camera</a>(...) -> DeleteCameraResponse</code></summary>
+<dl>
+<dd>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```python
+from dtgsoft import DtgAgentSdk
+from dtgsoft.environment import DtgAgentSdkEnvironment
+
+client = DtgAgentSdk(
+    token="<token>",
+    environment=DtgAgentSdkEnvironment.PRODUCTION,
+)
+
+client.cameras.delete_camera(
+    id="id",
+)
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**id:** `str` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**idempotency_key:** `typing.Optional[str]` — Idempotency key cho mutation (tránh double-submit).
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.cameras.<a href="src/dtgsoft/cameras/client.py">update_camera</a>(...) -> UpdateCameraResponse</code></summary>
+<dl>
+<dd>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```python
+from dtgsoft import DtgAgentSdk
+from dtgsoft.environment import DtgAgentSdkEnvironment
+
+client = DtgAgentSdk(
+    token="<token>",
+    environment=DtgAgentSdkEnvironment.PRODUCTION,
+)
+
+client.cameras.update_camera(
+    id="id",
+)
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**id:** `str` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**idempotency_key:** `typing.Optional[str]` — Idempotency key cho mutation (tránh double-submit).
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**display_name:** `typing.Optional[str]` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**vendor:** `typing.Optional[CameraUpdateRequestVendor]` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**rtsp_url:** `typing.Optional[str]` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**rtsp_username:** `typing.Optional[str]` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**rtsp_password:** `typing.Optional[str]` — Rỗng/omit = giữ mật khẩu cũ; gửi giá trị mới = ghi đè.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**vendor_config:** `typing.Optional[typing.Dict[str, typing.Any]]` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**enabled:** `typing.Optional[bool]` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**notes:** `typing.Optional[str]` 
     
 </dd>
 </dl>

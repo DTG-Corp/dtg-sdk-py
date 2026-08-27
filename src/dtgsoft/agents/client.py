@@ -71,6 +71,7 @@ class AgentsClient:
         llm_api_key: typing.Optional[str] = OMIT,
         knowledge_ids: typing.Optional[typing.Sequence[str]] = OMIT,
         enabled_tools: typing.Optional[typing.Sequence[str]] = OMIT,
+        camera_tool_ids: typing.Optional[typing.Sequence[str]] = OMIT,
         mcp_dynamic_server_ids: typing.Optional[typing.Sequence[str]] = OMIT,
         mcp_dynamic_tool_filter: typing.Optional[typing.Dict[str, typing.Any]] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
@@ -96,6 +97,9 @@ class AgentsClient:
 
         enabled_tools : typing.Optional[typing.Sequence[str]]
             ID tool từ catalog (dtg_enabled_tools), vd knowledge_rag.
+
+        camera_tool_ids : typing.Optional[typing.Sequence[str]]
+            UUID camera ORG được phép khi bật tool org_cameras (điền vào dtg_camera_tool_ids).
 
         mcp_dynamic_server_ids : typing.Optional[typing.Sequence[str]]
             UUID MCP server động (apimcp) gắn agent.
@@ -131,6 +135,7 @@ class AgentsClient:
             llm_api_key=llm_api_key,
             knowledge_ids=knowledge_ids,
             enabled_tools=enabled_tools,
+            camera_tool_ids=camera_tool_ids,
             mcp_dynamic_server_ids=mcp_dynamic_server_ids,
             mcp_dynamic_tool_filter=mcp_dynamic_tool_filter,
             request_options=request_options,
@@ -214,6 +219,7 @@ class AgentsClient:
         llm_api_key: typing.Optional[str] = OMIT,
         knowledge_ids: typing.Optional[typing.Sequence[str]] = OMIT,
         enabled_tools: typing.Optional[typing.Sequence[str]] = OMIT,
+        camera_tool_ids: typing.Optional[typing.Sequence[str]] = OMIT,
         mcp_dynamic_server_ids: typing.Optional[typing.Sequence[str]] = OMIT,
         mcp_dynamic_tool_filter: typing.Optional[typing.Dict[str, typing.Any]] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
@@ -241,6 +247,9 @@ class AgentsClient:
 
         enabled_tools : typing.Optional[typing.Sequence[str]]
             Omit/null = giữ nguyên; [] = xoá.
+
+        camera_tool_ids : typing.Optional[typing.Sequence[str]]
+            Omit/null = giữ nguyên; [] = xoá. Chỉ hiệu lực khi tool org_cameras được bật.
 
         mcp_dynamic_server_ids : typing.Optional[typing.Sequence[str]]
             Omit/null = giữ nguyên; [] = xoá.
@@ -277,6 +286,7 @@ class AgentsClient:
             llm_api_key=llm_api_key,
             knowledge_ids=knowledge_ids,
             enabled_tools=enabled_tools,
+            camera_tool_ids=camera_tool_ids,
             mcp_dynamic_server_ids=mcp_dynamic_server_ids,
             mcp_dynamic_tool_filter=mcp_dynamic_tool_filter,
             request_options=request_options,
@@ -512,6 +522,7 @@ class AsyncAgentsClient:
         llm_api_key: typing.Optional[str] = OMIT,
         knowledge_ids: typing.Optional[typing.Sequence[str]] = OMIT,
         enabled_tools: typing.Optional[typing.Sequence[str]] = OMIT,
+        camera_tool_ids: typing.Optional[typing.Sequence[str]] = OMIT,
         mcp_dynamic_server_ids: typing.Optional[typing.Sequence[str]] = OMIT,
         mcp_dynamic_tool_filter: typing.Optional[typing.Dict[str, typing.Any]] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
@@ -537,6 +548,9 @@ class AsyncAgentsClient:
 
         enabled_tools : typing.Optional[typing.Sequence[str]]
             ID tool từ catalog (dtg_enabled_tools), vd knowledge_rag.
+
+        camera_tool_ids : typing.Optional[typing.Sequence[str]]
+            UUID camera ORG được phép khi bật tool org_cameras (điền vào dtg_camera_tool_ids).
 
         mcp_dynamic_server_ids : typing.Optional[typing.Sequence[str]]
             UUID MCP server động (apimcp) gắn agent.
@@ -580,6 +594,7 @@ class AsyncAgentsClient:
             llm_api_key=llm_api_key,
             knowledge_ids=knowledge_ids,
             enabled_tools=enabled_tools,
+            camera_tool_ids=camera_tool_ids,
             mcp_dynamic_server_ids=mcp_dynamic_server_ids,
             mcp_dynamic_tool_filter=mcp_dynamic_tool_filter,
             request_options=request_options,
@@ -681,6 +696,7 @@ class AsyncAgentsClient:
         llm_api_key: typing.Optional[str] = OMIT,
         knowledge_ids: typing.Optional[typing.Sequence[str]] = OMIT,
         enabled_tools: typing.Optional[typing.Sequence[str]] = OMIT,
+        camera_tool_ids: typing.Optional[typing.Sequence[str]] = OMIT,
         mcp_dynamic_server_ids: typing.Optional[typing.Sequence[str]] = OMIT,
         mcp_dynamic_tool_filter: typing.Optional[typing.Dict[str, typing.Any]] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
@@ -708,6 +724,9 @@ class AsyncAgentsClient:
 
         enabled_tools : typing.Optional[typing.Sequence[str]]
             Omit/null = giữ nguyên; [] = xoá.
+
+        camera_tool_ids : typing.Optional[typing.Sequence[str]]
+            Omit/null = giữ nguyên; [] = xoá. Chỉ hiệu lực khi tool org_cameras được bật.
 
         mcp_dynamic_server_ids : typing.Optional[typing.Sequence[str]]
             Omit/null = giữ nguyên; [] = xoá.
@@ -752,6 +771,7 @@ class AsyncAgentsClient:
             llm_api_key=llm_api_key,
             knowledge_ids=knowledge_ids,
             enabled_tools=enabled_tools,
+            camera_tool_ids=camera_tool_ids,
             mcp_dynamic_server_ids=mcp_dynamic_server_ids,
             mcp_dynamic_tool_filter=mcp_dynamic_tool_filter,
             request_options=request_options,

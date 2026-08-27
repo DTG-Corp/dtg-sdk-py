@@ -10,37 +10,32 @@ from ..core.jsonable_encoder import encode_path_param
 from ..core.parse_error import ParsingError
 from ..core.pydantic_utilities import parse_obj_as
 from ..core.request_options import RequestOptions
-from ..core.serialization import convert_and_respect_annotation_metadata
 from ..errors.bad_request_error import BadRequestError
 from ..errors.content_too_large_error import ContentTooLargeError
 from ..errors.forbidden_error import ForbiddenError
 from ..errors.not_found_error import NotFoundError
 from ..errors.too_many_requests_error import TooManyRequestsError
 from ..errors.unauthorized_error import UnauthorizedError
-from ..types.channel_config import ChannelConfig
-from ..types.model_list import ModelList
-from .types.create_agent_response import CreateAgentResponse
-from .types.delete_agent_response import DeleteAgentResponse
-from .types.get_agent_channels_response import GetAgentChannelsResponse
-from .types.get_agent_response import GetAgentResponse
-from .types.list_agents_response import ListAgentsResponse
-from .types.start_agent_response import StartAgentResponse
-from .types.stop_agent_response import StopAgentResponse
-from .types.update_agent_channels_response import UpdateAgentChannelsResponse
-from .types.update_agent_response import UpdateAgentResponse
+from .types.camera_create_request_vendor import CameraCreateRequestVendor
+from .types.camera_update_request_vendor import CameraUpdateRequestVendor
+from .types.create_camera_response import CreateCameraResponse
+from .types.delete_camera_response import DeleteCameraResponse
+from .types.get_camera_response import GetCameraResponse
+from .types.list_cameras_response import ListCamerasResponse
+from .types.update_camera_response import UpdateCameraResponse
 from pydantic import ValidationError
 
 # this is used as the default value for optional parameters
 OMIT = typing.cast(typing.Any, ...)
 
 
-class RawAgentsClient:
+class RawCamerasClient:
     def __init__(self, *, client_wrapper: SyncClientWrapper):
         self._client_wrapper = client_wrapper
 
-    def list_agents(
+    def list_cameras(
         self, *, request_options: typing.Optional[RequestOptions] = None
-    ) -> HttpResponse[ListAgentsResponse]:
+    ) -> HttpResponse[ListCamerasResponse]:
         """
         Parameters
         ----------
@@ -49,20 +44,20 @@ class RawAgentsClient:
 
         Returns
         -------
-        HttpResponse[ListAgentsResponse]
-            Danh sách agent
+        HttpResponse[ListCamerasResponse]
+            Danh sách camera
         """
         _response = self._client_wrapper.httpx_client.request(
-            "api/v1/agents",
+            "api/v1/cameras",
             method="GET",
             request_options=request_options,
         )
         try:
             if 200 <= _response.status_code < 300:
                 _data = typing.cast(
-                    ListAgentsResponse,
+                    ListCamerasResponse,
                     parse_obj_as(
-                        type_=ListAgentsResponse,  # type: ignore
+                        type_=ListCamerasResponse,  # type: ignore
                         object_=_response.json(),
                     ),
                 )
@@ -98,75 +93,63 @@ class RawAgentsClient:
             )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
-    def create_agent(
+    def create_camera(
         self,
         *,
         display_name: str,
+        vendor: CameraCreateRequestVendor,
+        rtsp_url: str,
         idempotency_key: typing.Optional[str] = None,
-        llm_provider: typing.Optional[str] = OMIT,
-        llm_model: typing.Optional[str] = OMIT,
-        llm_base_url: typing.Optional[str] = OMIT,
-        llm_api_key: typing.Optional[str] = OMIT,
-        knowledge_ids: typing.Optional[typing.Sequence[str]] = OMIT,
-        enabled_tools: typing.Optional[typing.Sequence[str]] = OMIT,
-        camera_tool_ids: typing.Optional[typing.Sequence[str]] = OMIT,
-        mcp_dynamic_server_ids: typing.Optional[typing.Sequence[str]] = OMIT,
-        mcp_dynamic_tool_filter: typing.Optional[typing.Dict[str, typing.Any]] = OMIT,
+        rtsp_username: typing.Optional[str] = OMIT,
+        rtsp_password: typing.Optional[str] = OMIT,
+        vendor_config: typing.Optional[typing.Dict[str, typing.Any]] = OMIT,
+        enabled: typing.Optional[bool] = OMIT,
+        notes: typing.Optional[str] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> HttpResponse[CreateAgentResponse]:
+    ) -> HttpResponse[CreateCameraResponse]:
         """
         Parameters
         ----------
         display_name : str
 
+        vendor : CameraCreateRequestVendor
+
+        rtsp_url : str
+
         idempotency_key : typing.Optional[str]
             Idempotency key cho mutation (tránh double-submit).
 
-        llm_provider : typing.Optional[str]
+        rtsp_username : typing.Optional[str]
 
-        llm_model : typing.Optional[str]
+        rtsp_password : typing.Optional[str]
+            Chỉ gửi khi tạo; không bao giờ trả về trong response.
 
-        llm_base_url : typing.Optional[str]
+        vendor_config : typing.Optional[typing.Dict[str, typing.Any]]
 
-        llm_api_key : typing.Optional[str]
+        enabled : typing.Optional[bool]
 
-        knowledge_ids : typing.Optional[typing.Sequence[str]]
-            UUID các knowledge item gắn agent (điền vào dtg_knowledge_ids).
-
-        enabled_tools : typing.Optional[typing.Sequence[str]]
-            ID tool từ catalog (dtg_enabled_tools), vd knowledge_rag.
-
-        camera_tool_ids : typing.Optional[typing.Sequence[str]]
-            UUID camera ORG được phép khi bật tool org_cameras (điền vào dtg_camera_tool_ids).
-
-        mcp_dynamic_server_ids : typing.Optional[typing.Sequence[str]]
-            UUID MCP server động (apimcp) gắn agent.
-
-        mcp_dynamic_tool_filter : typing.Optional[typing.Dict[str, typing.Any]]
-            Filter tool expose cho agent (Dai Agent) theo từng MCP server động (khóa = UUID server).
+        notes : typing.Optional[str]
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
         Returns
         -------
-        HttpResponse[CreateAgentResponse]
-            Chi tiết agent
+        HttpResponse[CreateCameraResponse]
+            Chi tiết camera
         """
         _response = self._client_wrapper.httpx_client.request(
-            "api/v1/agents",
+            "api/v1/cameras",
             method="POST",
             json={
                 "display_name": display_name,
-                "llm_provider": llm_provider,
-                "llm_model": llm_model,
-                "llm_base_url": llm_base_url,
-                "llm_api_key": llm_api_key,
-                "knowledge_ids": knowledge_ids,
-                "enabled_tools": enabled_tools,
-                "camera_tool_ids": camera_tool_ids,
-                "mcp_dynamic_server_ids": mcp_dynamic_server_ids,
-                "mcp_dynamic_tool_filter": mcp_dynamic_tool_filter,
+                "vendor": vendor,
+                "rtsp_url": rtsp_url,
+                "rtsp_username": rtsp_username,
+                "rtsp_password": rtsp_password,
+                "vendor_config": vendor_config,
+                "enabled": enabled,
+                "notes": notes,
             },
             headers={
                 "content-type": "application/json",
@@ -178,9 +161,9 @@ class RawAgentsClient:
         try:
             if 200 <= _response.status_code < 300:
                 _data = typing.cast(
-                    CreateAgentResponse,
+                    CreateCameraResponse,
                     parse_obj_as(
-                        type_=CreateAgentResponse,  # type: ignore
+                        type_=CreateCameraResponse,  # type: ignore
                         object_=_response.json(),
                     ),
                 )
@@ -249,9 +232,9 @@ class RawAgentsClient:
             )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
-    def get_agent(
+    def get_camera(
         self, id: str, *, request_options: typing.Optional[RequestOptions] = None
-    ) -> HttpResponse[GetAgentResponse]:
+    ) -> HttpResponse[GetCameraResponse]:
         """
         Parameters
         ----------
@@ -262,20 +245,20 @@ class RawAgentsClient:
 
         Returns
         -------
-        HttpResponse[GetAgentResponse]
-            Chi tiết agent
+        HttpResponse[GetCameraResponse]
+            Chi tiết camera
         """
         _response = self._client_wrapper.httpx_client.request(
-            f"api/v1/agents/{encode_path_param(id)}",
+            f"api/v1/cameras/{encode_path_param(id)}",
             method="GET",
             request_options=request_options,
         )
         try:
             if 200 <= _response.status_code < 300:
                 _data = typing.cast(
-                    GetAgentResponse,
+                    GetCameraResponse,
                     parse_obj_as(
-                        type_=GetAgentResponse,  # type: ignore
+                        type_=GetCameraResponse,  # type: ignore
                         object_=_response.json(),
                     ),
                 )
@@ -311,13 +294,13 @@ class RawAgentsClient:
             )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
-    def delete_agent(
+    def delete_camera(
         self,
         id: str,
         *,
         idempotency_key: typing.Optional[str] = None,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> HttpResponse[DeleteAgentResponse]:
+    ) -> HttpResponse[DeleteCameraResponse]:
         """
         Parameters
         ----------
@@ -331,11 +314,11 @@ class RawAgentsClient:
 
         Returns
         -------
-        HttpResponse[DeleteAgentResponse]
+        HttpResponse[DeleteCameraResponse]
             OK
         """
         _response = self._client_wrapper.httpx_client.request(
-            f"api/v1/agents/{encode_path_param(id)}",
+            f"api/v1/cameras/{encode_path_param(id)}",
             method="DELETE",
             headers={
                 "Idempotency-Key": str(idempotency_key) if idempotency_key is not None else None,
@@ -345,9 +328,9 @@ class RawAgentsClient:
         try:
             if 200 <= _response.status_code < 300:
                 _data = typing.cast(
-                    DeleteAgentResponse,
+                    DeleteCameraResponse,
                     parse_obj_as(
-                        type_=DeleteAgentResponse,  # type: ignore
+                        type_=DeleteCameraResponse,  # type: ignore
                         object_=_response.json(),
                     ),
                 )
@@ -394,23 +377,21 @@ class RawAgentsClient:
             )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
-    def update_agent(
+    def update_camera(
         self,
         id: str,
         *,
         idempotency_key: typing.Optional[str] = None,
         display_name: typing.Optional[str] = OMIT,
-        llm_provider: typing.Optional[str] = OMIT,
-        llm_model: typing.Optional[str] = OMIT,
-        llm_base_url: typing.Optional[str] = OMIT,
-        llm_api_key: typing.Optional[str] = OMIT,
-        knowledge_ids: typing.Optional[typing.Sequence[str]] = OMIT,
-        enabled_tools: typing.Optional[typing.Sequence[str]] = OMIT,
-        camera_tool_ids: typing.Optional[typing.Sequence[str]] = OMIT,
-        mcp_dynamic_server_ids: typing.Optional[typing.Sequence[str]] = OMIT,
-        mcp_dynamic_tool_filter: typing.Optional[typing.Dict[str, typing.Any]] = OMIT,
+        vendor: typing.Optional[CameraUpdateRequestVendor] = OMIT,
+        rtsp_url: typing.Optional[str] = OMIT,
+        rtsp_username: typing.Optional[str] = OMIT,
+        rtsp_password: typing.Optional[str] = OMIT,
+        vendor_config: typing.Optional[typing.Dict[str, typing.Any]] = OMIT,
+        enabled: typing.Optional[bool] = OMIT,
+        notes: typing.Optional[str] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> HttpResponse[UpdateAgentResponse]:
+    ) -> HttpResponse[UpdateCameraResponse]:
         """
         Parameters
         ----------
@@ -421,51 +402,41 @@ class RawAgentsClient:
 
         display_name : typing.Optional[str]
 
-        llm_provider : typing.Optional[str]
+        vendor : typing.Optional[CameraUpdateRequestVendor]
 
-        llm_model : typing.Optional[str]
+        rtsp_url : typing.Optional[str]
 
-        llm_base_url : typing.Optional[str]
+        rtsp_username : typing.Optional[str]
 
-        llm_api_key : typing.Optional[str]
+        rtsp_password : typing.Optional[str]
+            Rỗng/omit = giữ mật khẩu cũ; gửi giá trị mới = ghi đè.
 
-        knowledge_ids : typing.Optional[typing.Sequence[str]]
-            Omit/null = giữ nguyên; [] = xoá.
+        vendor_config : typing.Optional[typing.Dict[str, typing.Any]]
 
-        enabled_tools : typing.Optional[typing.Sequence[str]]
-            Omit/null = giữ nguyên; [] = xoá.
+        enabled : typing.Optional[bool]
 
-        camera_tool_ids : typing.Optional[typing.Sequence[str]]
-            Omit/null = giữ nguyên; [] = xoá. Chỉ hiệu lực khi tool org_cameras được bật.
-
-        mcp_dynamic_server_ids : typing.Optional[typing.Sequence[str]]
-            Omit/null = giữ nguyên; [] = xoá.
-
-        mcp_dynamic_tool_filter : typing.Optional[typing.Dict[str, typing.Any]]
-            Omit/null = giữ nguyên; {} = xoá.
+        notes : typing.Optional[str]
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
         Returns
         -------
-        HttpResponse[UpdateAgentResponse]
-            Chi tiết agent
+        HttpResponse[UpdateCameraResponse]
+            Chi tiết camera
         """
         _response = self._client_wrapper.httpx_client.request(
-            f"api/v1/agents/{encode_path_param(id)}",
+            f"api/v1/cameras/{encode_path_param(id)}",
             method="PATCH",
             json={
                 "display_name": display_name,
-                "llm_provider": llm_provider,
-                "llm_model": llm_model,
-                "llm_base_url": llm_base_url,
-                "llm_api_key": llm_api_key,
-                "knowledge_ids": knowledge_ids,
-                "enabled_tools": enabled_tools,
-                "camera_tool_ids": camera_tool_ids,
-                "mcp_dynamic_server_ids": mcp_dynamic_server_ids,
-                "mcp_dynamic_tool_filter": mcp_dynamic_tool_filter,
+                "vendor": vendor,
+                "rtsp_url": rtsp_url,
+                "rtsp_username": rtsp_username,
+                "rtsp_password": rtsp_password,
+                "vendor_config": vendor_config,
+                "enabled": enabled,
+                "notes": notes,
             },
             headers={
                 "content-type": "application/json",
@@ -477,9 +448,9 @@ class RawAgentsClient:
         try:
             if 200 <= _response.status_code < 300:
                 _data = typing.cast(
-                    UpdateAgentResponse,
+                    UpdateCameraResponse,
                     parse_obj_as(
-                        type_=UpdateAgentResponse,  # type: ignore
+                        type_=UpdateCameraResponse,  # type: ignore
                         object_=_response.json(),
                     ),
                 )
@@ -548,250 +519,14 @@ class RawAgentsClient:
             )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
-    def start_agent(
-        self,
-        id: str,
-        *,
-        idempotency_key: typing.Optional[str] = None,
-        request_options: typing.Optional[RequestOptions] = None,
-    ) -> HttpResponse[StartAgentResponse]:
-        """
-        Parameters
-        ----------
-        id : str
 
-        idempotency_key : typing.Optional[str]
-            Idempotency key cho mutation (tránh double-submit).
-
-        request_options : typing.Optional[RequestOptions]
-            Request-specific configuration.
-
-        Returns
-        -------
-        HttpResponse[StartAgentResponse]
-            OK
-        """
-        _response = self._client_wrapper.httpx_client.request(
-            f"api/v1/agents/{encode_path_param(id)}/start",
-            method="POST",
-            headers={
-                "Idempotency-Key": str(idempotency_key) if idempotency_key is not None else None,
-            },
-            request_options=request_options,
-        )
-        try:
-            if 200 <= _response.status_code < 300:
-                _data = typing.cast(
-                    StartAgentResponse,
-                    parse_obj_as(
-                        type_=StartAgentResponse,  # type: ignore
-                        object_=_response.json(),
-                    ),
-                )
-                return HttpResponse(response=_response, data=_data)
-            _response_json = _response.json()
-        except JSONDecodeError:
-            raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
-        except ValidationError as e:
-            raise ParsingError(
-                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
-            )
-        raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
-
-    def stop_agent(
-        self,
-        id: str,
-        *,
-        idempotency_key: typing.Optional[str] = None,
-        request_options: typing.Optional[RequestOptions] = None,
-    ) -> HttpResponse[StopAgentResponse]:
-        """
-        Parameters
-        ----------
-        id : str
-
-        idempotency_key : typing.Optional[str]
-            Idempotency key cho mutation (tránh double-submit).
-
-        request_options : typing.Optional[RequestOptions]
-            Request-specific configuration.
-
-        Returns
-        -------
-        HttpResponse[StopAgentResponse]
-            OK
-        """
-        _response = self._client_wrapper.httpx_client.request(
-            f"api/v1/agents/{encode_path_param(id)}/stop",
-            method="POST",
-            headers={
-                "Idempotency-Key": str(idempotency_key) if idempotency_key is not None else None,
-            },
-            request_options=request_options,
-        )
-        try:
-            if 200 <= _response.status_code < 300:
-                _data = typing.cast(
-                    StopAgentResponse,
-                    parse_obj_as(
-                        type_=StopAgentResponse,  # type: ignore
-                        object_=_response.json(),
-                    ),
-                )
-                return HttpResponse(response=_response, data=_data)
-            _response_json = _response.json()
-        except JSONDecodeError:
-            raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
-        except ValidationError as e:
-            raise ParsingError(
-                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
-            )
-        raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
-
-    def get_agent_channels(
-        self, id: str, *, request_options: typing.Optional[RequestOptions] = None
-    ) -> HttpResponse[GetAgentChannelsResponse]:
-        """
-        Parameters
-        ----------
-        id : str
-
-        request_options : typing.Optional[RequestOptions]
-            Request-specific configuration.
-
-        Returns
-        -------
-        HttpResponse[GetAgentChannelsResponse]
-            Danh sách kênh
-        """
-        _response = self._client_wrapper.httpx_client.request(
-            f"api/v1/agents/{encode_path_param(id)}/channels",
-            method="GET",
-            request_options=request_options,
-        )
-        try:
-            if 200 <= _response.status_code < 300:
-                _data = typing.cast(
-                    GetAgentChannelsResponse,
-                    parse_obj_as(
-                        type_=GetAgentChannelsResponse,  # type: ignore
-                        object_=_response.json(),
-                    ),
-                )
-                return HttpResponse(response=_response, data=_data)
-            _response_json = _response.json()
-        except JSONDecodeError:
-            raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
-        except ValidationError as e:
-            raise ParsingError(
-                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
-            )
-        raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
-
-    def update_agent_channels(
-        self,
-        id: str,
-        *,
-        idempotency_key: typing.Optional[str] = None,
-        channels: typing.Optional[typing.Sequence[ChannelConfig]] = OMIT,
-        request_options: typing.Optional[RequestOptions] = None,
-    ) -> HttpResponse[UpdateAgentChannelsResponse]:
-        """
-        Parameters
-        ----------
-        id : str
-
-        idempotency_key : typing.Optional[str]
-            Idempotency key cho mutation (tránh double-submit).
-
-        channels : typing.Optional[typing.Sequence[ChannelConfig]]
-
-        request_options : typing.Optional[RequestOptions]
-            Request-specific configuration.
-
-        Returns
-        -------
-        HttpResponse[UpdateAgentChannelsResponse]
-            Cấu hình kênh đã lưu
-        """
-        _response = self._client_wrapper.httpx_client.request(
-            f"api/v1/agents/{encode_path_param(id)}/channels",
-            method="PUT",
-            json={
-                "channels": convert_and_respect_annotation_metadata(
-                    object_=channels, annotation=typing.Sequence[ChannelConfig], direction="write"
-                ),
-            },
-            headers={
-                "content-type": "application/json",
-                "Idempotency-Key": str(idempotency_key) if idempotency_key is not None else None,
-            },
-            request_options=request_options,
-            omit=OMIT,
-        )
-        try:
-            if 200 <= _response.status_code < 300:
-                _data = typing.cast(
-                    UpdateAgentChannelsResponse,
-                    parse_obj_as(
-                        type_=UpdateAgentChannelsResponse,  # type: ignore
-                        object_=_response.json(),
-                    ),
-                )
-                return HttpResponse(response=_response, data=_data)
-            _response_json = _response.json()
-        except JSONDecodeError:
-            raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
-        except ValidationError as e:
-            raise ParsingError(
-                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
-            )
-        raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
-
-    def list_agent_models(self, *, request_options: typing.Optional[RequestOptions] = None) -> HttpResponse[ModelList]:
-        """
-        Parameters
-        ----------
-        request_options : typing.Optional[RequestOptions]
-            Request-specific configuration.
-
-        Returns
-        -------
-        HttpResponse[ModelList]
-            Danh sách models
-        """
-        _response = self._client_wrapper.httpx_client.request(
-            "api/v1/models",
-            method="GET",
-            request_options=request_options,
-        )
-        try:
-            if 200 <= _response.status_code < 300:
-                _data = typing.cast(
-                    ModelList,
-                    parse_obj_as(
-                        type_=ModelList,  # type: ignore
-                        object_=_response.json(),
-                    ),
-                )
-                return HttpResponse(response=_response, data=_data)
-            _response_json = _response.json()
-        except JSONDecodeError:
-            raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
-        except ValidationError as e:
-            raise ParsingError(
-                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
-            )
-        raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
-
-
-class AsyncRawAgentsClient:
+class AsyncRawCamerasClient:
     def __init__(self, *, client_wrapper: AsyncClientWrapper):
         self._client_wrapper = client_wrapper
 
-    async def list_agents(
+    async def list_cameras(
         self, *, request_options: typing.Optional[RequestOptions] = None
-    ) -> AsyncHttpResponse[ListAgentsResponse]:
+    ) -> AsyncHttpResponse[ListCamerasResponse]:
         """
         Parameters
         ----------
@@ -800,20 +535,20 @@ class AsyncRawAgentsClient:
 
         Returns
         -------
-        AsyncHttpResponse[ListAgentsResponse]
-            Danh sách agent
+        AsyncHttpResponse[ListCamerasResponse]
+            Danh sách camera
         """
         _response = await self._client_wrapper.httpx_client.request(
-            "api/v1/agents",
+            "api/v1/cameras",
             method="GET",
             request_options=request_options,
         )
         try:
             if 200 <= _response.status_code < 300:
                 _data = typing.cast(
-                    ListAgentsResponse,
+                    ListCamerasResponse,
                     parse_obj_as(
-                        type_=ListAgentsResponse,  # type: ignore
+                        type_=ListCamerasResponse,  # type: ignore
                         object_=_response.json(),
                     ),
                 )
@@ -849,75 +584,63 @@ class AsyncRawAgentsClient:
             )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
-    async def create_agent(
+    async def create_camera(
         self,
         *,
         display_name: str,
+        vendor: CameraCreateRequestVendor,
+        rtsp_url: str,
         idempotency_key: typing.Optional[str] = None,
-        llm_provider: typing.Optional[str] = OMIT,
-        llm_model: typing.Optional[str] = OMIT,
-        llm_base_url: typing.Optional[str] = OMIT,
-        llm_api_key: typing.Optional[str] = OMIT,
-        knowledge_ids: typing.Optional[typing.Sequence[str]] = OMIT,
-        enabled_tools: typing.Optional[typing.Sequence[str]] = OMIT,
-        camera_tool_ids: typing.Optional[typing.Sequence[str]] = OMIT,
-        mcp_dynamic_server_ids: typing.Optional[typing.Sequence[str]] = OMIT,
-        mcp_dynamic_tool_filter: typing.Optional[typing.Dict[str, typing.Any]] = OMIT,
+        rtsp_username: typing.Optional[str] = OMIT,
+        rtsp_password: typing.Optional[str] = OMIT,
+        vendor_config: typing.Optional[typing.Dict[str, typing.Any]] = OMIT,
+        enabled: typing.Optional[bool] = OMIT,
+        notes: typing.Optional[str] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> AsyncHttpResponse[CreateAgentResponse]:
+    ) -> AsyncHttpResponse[CreateCameraResponse]:
         """
         Parameters
         ----------
         display_name : str
 
+        vendor : CameraCreateRequestVendor
+
+        rtsp_url : str
+
         idempotency_key : typing.Optional[str]
             Idempotency key cho mutation (tránh double-submit).
 
-        llm_provider : typing.Optional[str]
+        rtsp_username : typing.Optional[str]
 
-        llm_model : typing.Optional[str]
+        rtsp_password : typing.Optional[str]
+            Chỉ gửi khi tạo; không bao giờ trả về trong response.
 
-        llm_base_url : typing.Optional[str]
+        vendor_config : typing.Optional[typing.Dict[str, typing.Any]]
 
-        llm_api_key : typing.Optional[str]
+        enabled : typing.Optional[bool]
 
-        knowledge_ids : typing.Optional[typing.Sequence[str]]
-            UUID các knowledge item gắn agent (điền vào dtg_knowledge_ids).
-
-        enabled_tools : typing.Optional[typing.Sequence[str]]
-            ID tool từ catalog (dtg_enabled_tools), vd knowledge_rag.
-
-        camera_tool_ids : typing.Optional[typing.Sequence[str]]
-            UUID camera ORG được phép khi bật tool org_cameras (điền vào dtg_camera_tool_ids).
-
-        mcp_dynamic_server_ids : typing.Optional[typing.Sequence[str]]
-            UUID MCP server động (apimcp) gắn agent.
-
-        mcp_dynamic_tool_filter : typing.Optional[typing.Dict[str, typing.Any]]
-            Filter tool expose cho agent (Dai Agent) theo từng MCP server động (khóa = UUID server).
+        notes : typing.Optional[str]
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
         Returns
         -------
-        AsyncHttpResponse[CreateAgentResponse]
-            Chi tiết agent
+        AsyncHttpResponse[CreateCameraResponse]
+            Chi tiết camera
         """
         _response = await self._client_wrapper.httpx_client.request(
-            "api/v1/agents",
+            "api/v1/cameras",
             method="POST",
             json={
                 "display_name": display_name,
-                "llm_provider": llm_provider,
-                "llm_model": llm_model,
-                "llm_base_url": llm_base_url,
-                "llm_api_key": llm_api_key,
-                "knowledge_ids": knowledge_ids,
-                "enabled_tools": enabled_tools,
-                "camera_tool_ids": camera_tool_ids,
-                "mcp_dynamic_server_ids": mcp_dynamic_server_ids,
-                "mcp_dynamic_tool_filter": mcp_dynamic_tool_filter,
+                "vendor": vendor,
+                "rtsp_url": rtsp_url,
+                "rtsp_username": rtsp_username,
+                "rtsp_password": rtsp_password,
+                "vendor_config": vendor_config,
+                "enabled": enabled,
+                "notes": notes,
             },
             headers={
                 "content-type": "application/json",
@@ -929,9 +652,9 @@ class AsyncRawAgentsClient:
         try:
             if 200 <= _response.status_code < 300:
                 _data = typing.cast(
-                    CreateAgentResponse,
+                    CreateCameraResponse,
                     parse_obj_as(
-                        type_=CreateAgentResponse,  # type: ignore
+                        type_=CreateCameraResponse,  # type: ignore
                         object_=_response.json(),
                     ),
                 )
@@ -1000,9 +723,9 @@ class AsyncRawAgentsClient:
             )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
-    async def get_agent(
+    async def get_camera(
         self, id: str, *, request_options: typing.Optional[RequestOptions] = None
-    ) -> AsyncHttpResponse[GetAgentResponse]:
+    ) -> AsyncHttpResponse[GetCameraResponse]:
         """
         Parameters
         ----------
@@ -1013,20 +736,20 @@ class AsyncRawAgentsClient:
 
         Returns
         -------
-        AsyncHttpResponse[GetAgentResponse]
-            Chi tiết agent
+        AsyncHttpResponse[GetCameraResponse]
+            Chi tiết camera
         """
         _response = await self._client_wrapper.httpx_client.request(
-            f"api/v1/agents/{encode_path_param(id)}",
+            f"api/v1/cameras/{encode_path_param(id)}",
             method="GET",
             request_options=request_options,
         )
         try:
             if 200 <= _response.status_code < 300:
                 _data = typing.cast(
-                    GetAgentResponse,
+                    GetCameraResponse,
                     parse_obj_as(
-                        type_=GetAgentResponse,  # type: ignore
+                        type_=GetCameraResponse,  # type: ignore
                         object_=_response.json(),
                     ),
                 )
@@ -1062,13 +785,13 @@ class AsyncRawAgentsClient:
             )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
-    async def delete_agent(
+    async def delete_camera(
         self,
         id: str,
         *,
         idempotency_key: typing.Optional[str] = None,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> AsyncHttpResponse[DeleteAgentResponse]:
+    ) -> AsyncHttpResponse[DeleteCameraResponse]:
         """
         Parameters
         ----------
@@ -1082,11 +805,11 @@ class AsyncRawAgentsClient:
 
         Returns
         -------
-        AsyncHttpResponse[DeleteAgentResponse]
+        AsyncHttpResponse[DeleteCameraResponse]
             OK
         """
         _response = await self._client_wrapper.httpx_client.request(
-            f"api/v1/agents/{encode_path_param(id)}",
+            f"api/v1/cameras/{encode_path_param(id)}",
             method="DELETE",
             headers={
                 "Idempotency-Key": str(idempotency_key) if idempotency_key is not None else None,
@@ -1096,9 +819,9 @@ class AsyncRawAgentsClient:
         try:
             if 200 <= _response.status_code < 300:
                 _data = typing.cast(
-                    DeleteAgentResponse,
+                    DeleteCameraResponse,
                     parse_obj_as(
-                        type_=DeleteAgentResponse,  # type: ignore
+                        type_=DeleteCameraResponse,  # type: ignore
                         object_=_response.json(),
                     ),
                 )
@@ -1145,23 +868,21 @@ class AsyncRawAgentsClient:
             )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
-    async def update_agent(
+    async def update_camera(
         self,
         id: str,
         *,
         idempotency_key: typing.Optional[str] = None,
         display_name: typing.Optional[str] = OMIT,
-        llm_provider: typing.Optional[str] = OMIT,
-        llm_model: typing.Optional[str] = OMIT,
-        llm_base_url: typing.Optional[str] = OMIT,
-        llm_api_key: typing.Optional[str] = OMIT,
-        knowledge_ids: typing.Optional[typing.Sequence[str]] = OMIT,
-        enabled_tools: typing.Optional[typing.Sequence[str]] = OMIT,
-        camera_tool_ids: typing.Optional[typing.Sequence[str]] = OMIT,
-        mcp_dynamic_server_ids: typing.Optional[typing.Sequence[str]] = OMIT,
-        mcp_dynamic_tool_filter: typing.Optional[typing.Dict[str, typing.Any]] = OMIT,
+        vendor: typing.Optional[CameraUpdateRequestVendor] = OMIT,
+        rtsp_url: typing.Optional[str] = OMIT,
+        rtsp_username: typing.Optional[str] = OMIT,
+        rtsp_password: typing.Optional[str] = OMIT,
+        vendor_config: typing.Optional[typing.Dict[str, typing.Any]] = OMIT,
+        enabled: typing.Optional[bool] = OMIT,
+        notes: typing.Optional[str] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> AsyncHttpResponse[UpdateAgentResponse]:
+    ) -> AsyncHttpResponse[UpdateCameraResponse]:
         """
         Parameters
         ----------
@@ -1172,51 +893,41 @@ class AsyncRawAgentsClient:
 
         display_name : typing.Optional[str]
 
-        llm_provider : typing.Optional[str]
+        vendor : typing.Optional[CameraUpdateRequestVendor]
 
-        llm_model : typing.Optional[str]
+        rtsp_url : typing.Optional[str]
 
-        llm_base_url : typing.Optional[str]
+        rtsp_username : typing.Optional[str]
 
-        llm_api_key : typing.Optional[str]
+        rtsp_password : typing.Optional[str]
+            Rỗng/omit = giữ mật khẩu cũ; gửi giá trị mới = ghi đè.
 
-        knowledge_ids : typing.Optional[typing.Sequence[str]]
-            Omit/null = giữ nguyên; [] = xoá.
+        vendor_config : typing.Optional[typing.Dict[str, typing.Any]]
 
-        enabled_tools : typing.Optional[typing.Sequence[str]]
-            Omit/null = giữ nguyên; [] = xoá.
+        enabled : typing.Optional[bool]
 
-        camera_tool_ids : typing.Optional[typing.Sequence[str]]
-            Omit/null = giữ nguyên; [] = xoá. Chỉ hiệu lực khi tool org_cameras được bật.
-
-        mcp_dynamic_server_ids : typing.Optional[typing.Sequence[str]]
-            Omit/null = giữ nguyên; [] = xoá.
-
-        mcp_dynamic_tool_filter : typing.Optional[typing.Dict[str, typing.Any]]
-            Omit/null = giữ nguyên; {} = xoá.
+        notes : typing.Optional[str]
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
         Returns
         -------
-        AsyncHttpResponse[UpdateAgentResponse]
-            Chi tiết agent
+        AsyncHttpResponse[UpdateCameraResponse]
+            Chi tiết camera
         """
         _response = await self._client_wrapper.httpx_client.request(
-            f"api/v1/agents/{encode_path_param(id)}",
+            f"api/v1/cameras/{encode_path_param(id)}",
             method="PATCH",
             json={
                 "display_name": display_name,
-                "llm_provider": llm_provider,
-                "llm_model": llm_model,
-                "llm_base_url": llm_base_url,
-                "llm_api_key": llm_api_key,
-                "knowledge_ids": knowledge_ids,
-                "enabled_tools": enabled_tools,
-                "camera_tool_ids": camera_tool_ids,
-                "mcp_dynamic_server_ids": mcp_dynamic_server_ids,
-                "mcp_dynamic_tool_filter": mcp_dynamic_tool_filter,
+                "vendor": vendor,
+                "rtsp_url": rtsp_url,
+                "rtsp_username": rtsp_username,
+                "rtsp_password": rtsp_password,
+                "vendor_config": vendor_config,
+                "enabled": enabled,
+                "notes": notes,
             },
             headers={
                 "content-type": "application/json",
@@ -1228,9 +939,9 @@ class AsyncRawAgentsClient:
         try:
             if 200 <= _response.status_code < 300:
                 _data = typing.cast(
-                    UpdateAgentResponse,
+                    UpdateCameraResponse,
                     parse_obj_as(
-                        type_=UpdateAgentResponse,  # type: ignore
+                        type_=UpdateCameraResponse,  # type: ignore
                         object_=_response.json(),
                     ),
                 )
@@ -1290,244 +1001,6 @@ class AsyncRawAgentsClient:
                         ),
                     ),
                 )
-            _response_json = _response.json()
-        except JSONDecodeError:
-            raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
-        except ValidationError as e:
-            raise ParsingError(
-                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
-            )
-        raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
-
-    async def start_agent(
-        self,
-        id: str,
-        *,
-        idempotency_key: typing.Optional[str] = None,
-        request_options: typing.Optional[RequestOptions] = None,
-    ) -> AsyncHttpResponse[StartAgentResponse]:
-        """
-        Parameters
-        ----------
-        id : str
-
-        idempotency_key : typing.Optional[str]
-            Idempotency key cho mutation (tránh double-submit).
-
-        request_options : typing.Optional[RequestOptions]
-            Request-specific configuration.
-
-        Returns
-        -------
-        AsyncHttpResponse[StartAgentResponse]
-            OK
-        """
-        _response = await self._client_wrapper.httpx_client.request(
-            f"api/v1/agents/{encode_path_param(id)}/start",
-            method="POST",
-            headers={
-                "Idempotency-Key": str(idempotency_key) if idempotency_key is not None else None,
-            },
-            request_options=request_options,
-        )
-        try:
-            if 200 <= _response.status_code < 300:
-                _data = typing.cast(
-                    StartAgentResponse,
-                    parse_obj_as(
-                        type_=StartAgentResponse,  # type: ignore
-                        object_=_response.json(),
-                    ),
-                )
-                return AsyncHttpResponse(response=_response, data=_data)
-            _response_json = _response.json()
-        except JSONDecodeError:
-            raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
-        except ValidationError as e:
-            raise ParsingError(
-                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
-            )
-        raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
-
-    async def stop_agent(
-        self,
-        id: str,
-        *,
-        idempotency_key: typing.Optional[str] = None,
-        request_options: typing.Optional[RequestOptions] = None,
-    ) -> AsyncHttpResponse[StopAgentResponse]:
-        """
-        Parameters
-        ----------
-        id : str
-
-        idempotency_key : typing.Optional[str]
-            Idempotency key cho mutation (tránh double-submit).
-
-        request_options : typing.Optional[RequestOptions]
-            Request-specific configuration.
-
-        Returns
-        -------
-        AsyncHttpResponse[StopAgentResponse]
-            OK
-        """
-        _response = await self._client_wrapper.httpx_client.request(
-            f"api/v1/agents/{encode_path_param(id)}/stop",
-            method="POST",
-            headers={
-                "Idempotency-Key": str(idempotency_key) if idempotency_key is not None else None,
-            },
-            request_options=request_options,
-        )
-        try:
-            if 200 <= _response.status_code < 300:
-                _data = typing.cast(
-                    StopAgentResponse,
-                    parse_obj_as(
-                        type_=StopAgentResponse,  # type: ignore
-                        object_=_response.json(),
-                    ),
-                )
-                return AsyncHttpResponse(response=_response, data=_data)
-            _response_json = _response.json()
-        except JSONDecodeError:
-            raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
-        except ValidationError as e:
-            raise ParsingError(
-                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
-            )
-        raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
-
-    async def get_agent_channels(
-        self, id: str, *, request_options: typing.Optional[RequestOptions] = None
-    ) -> AsyncHttpResponse[GetAgentChannelsResponse]:
-        """
-        Parameters
-        ----------
-        id : str
-
-        request_options : typing.Optional[RequestOptions]
-            Request-specific configuration.
-
-        Returns
-        -------
-        AsyncHttpResponse[GetAgentChannelsResponse]
-            Danh sách kênh
-        """
-        _response = await self._client_wrapper.httpx_client.request(
-            f"api/v1/agents/{encode_path_param(id)}/channels",
-            method="GET",
-            request_options=request_options,
-        )
-        try:
-            if 200 <= _response.status_code < 300:
-                _data = typing.cast(
-                    GetAgentChannelsResponse,
-                    parse_obj_as(
-                        type_=GetAgentChannelsResponse,  # type: ignore
-                        object_=_response.json(),
-                    ),
-                )
-                return AsyncHttpResponse(response=_response, data=_data)
-            _response_json = _response.json()
-        except JSONDecodeError:
-            raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
-        except ValidationError as e:
-            raise ParsingError(
-                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
-            )
-        raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
-
-    async def update_agent_channels(
-        self,
-        id: str,
-        *,
-        idempotency_key: typing.Optional[str] = None,
-        channels: typing.Optional[typing.Sequence[ChannelConfig]] = OMIT,
-        request_options: typing.Optional[RequestOptions] = None,
-    ) -> AsyncHttpResponse[UpdateAgentChannelsResponse]:
-        """
-        Parameters
-        ----------
-        id : str
-
-        idempotency_key : typing.Optional[str]
-            Idempotency key cho mutation (tránh double-submit).
-
-        channels : typing.Optional[typing.Sequence[ChannelConfig]]
-
-        request_options : typing.Optional[RequestOptions]
-            Request-specific configuration.
-
-        Returns
-        -------
-        AsyncHttpResponse[UpdateAgentChannelsResponse]
-            Cấu hình kênh đã lưu
-        """
-        _response = await self._client_wrapper.httpx_client.request(
-            f"api/v1/agents/{encode_path_param(id)}/channels",
-            method="PUT",
-            json={
-                "channels": convert_and_respect_annotation_metadata(
-                    object_=channels, annotation=typing.Sequence[ChannelConfig], direction="write"
-                ),
-            },
-            headers={
-                "content-type": "application/json",
-                "Idempotency-Key": str(idempotency_key) if idempotency_key is not None else None,
-            },
-            request_options=request_options,
-            omit=OMIT,
-        )
-        try:
-            if 200 <= _response.status_code < 300:
-                _data = typing.cast(
-                    UpdateAgentChannelsResponse,
-                    parse_obj_as(
-                        type_=UpdateAgentChannelsResponse,  # type: ignore
-                        object_=_response.json(),
-                    ),
-                )
-                return AsyncHttpResponse(response=_response, data=_data)
-            _response_json = _response.json()
-        except JSONDecodeError:
-            raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
-        except ValidationError as e:
-            raise ParsingError(
-                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
-            )
-        raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
-
-    async def list_agent_models(
-        self, *, request_options: typing.Optional[RequestOptions] = None
-    ) -> AsyncHttpResponse[ModelList]:
-        """
-        Parameters
-        ----------
-        request_options : typing.Optional[RequestOptions]
-            Request-specific configuration.
-
-        Returns
-        -------
-        AsyncHttpResponse[ModelList]
-            Danh sách models
-        """
-        _response = await self._client_wrapper.httpx_client.request(
-            "api/v1/models",
-            method="GET",
-            request_options=request_options,
-        )
-        try:
-            if 200 <= _response.status_code < 300:
-                _data = typing.cast(
-                    ModelList,
-                    parse_obj_as(
-                        type_=ModelList,  # type: ignore
-                        object_=_response.json(),
-                    ),
-                )
-                return AsyncHttpResponse(response=_response, data=_data)
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
