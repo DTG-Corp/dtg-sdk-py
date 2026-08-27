@@ -13,6 +13,8 @@ if typing.TYPE_CHECKING:
     from .bad_request_error_body import BadRequestErrorBody
     from .bad_request_error_body_code import BadRequestErrorBodyCode
     from .bad_request_error_body_status import BadRequestErrorBodyStatus
+    from .camera import Camera
+    from .camera_vendor import CameraVendor
     from .channel_config import ChannelConfig
     from .channel_config_type import ChannelConfigType
     from .chat_completion import ChatCompletion
@@ -66,6 +68,8 @@ _dynamic_imports: typing.Dict[str, str] = {
     "BadRequestErrorBody": ".bad_request_error_body",
     "BadRequestErrorBodyCode": ".bad_request_error_body_code",
     "BadRequestErrorBodyStatus": ".bad_request_error_body_status",
+    "Camera": ".camera",
+    "CameraVendor": ".camera_vendor",
     "ChannelConfig": ".channel_config",
     "ChannelConfigType": ".channel_config_type",
     "ChatCompletion": ".chat_completion",
@@ -143,6 +147,8 @@ __all__ = [
     "BadRequestErrorBody",
     "BadRequestErrorBodyCode",
     "BadRequestErrorBodyStatus",
+    "Camera",
+    "CameraVendor",
     "ChannelConfig",
     "ChannelConfigType",
     "ChatCompletion",

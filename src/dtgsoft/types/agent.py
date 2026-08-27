@@ -16,6 +16,11 @@ class Agent(UniversalBaseModel):
     llm_base_url: typing.Optional[str] = None
     knowledge_ids: typing.Optional[typing.List[str]] = None
     enabled_tools: typing.Optional[typing.List[str]] = None
+    camera_tool_ids: typing.Optional[typing.List[str]] = pydantic.Field(default=None)
+    """
+    UUID camera ORG được phép khi bật tool org_cameras (điền vào dtg_camera_tool_ids).
+    """
+
     mcp_dynamic_server_ids: typing.Optional[typing.List[str]] = None
     mcp_dynamic_tool_filter: typing.Optional[typing.Dict[str, typing.Any]] = None
 

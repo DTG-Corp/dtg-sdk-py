@@ -12,6 +12,7 @@ from .environment import DtgAgentSdkEnvironment
 if typing.TYPE_CHECKING:
     from .agents.client import AgentsClient, AsyncAgentsClient
     from .api_keys.client import ApiKeysClient, AsyncApiKeysClient
+    from .cameras.client import AsyncCamerasClient, CamerasClient
     from .gateway.client import AsyncGatewayClient, GatewayClient
     from .knowledge.client import AsyncKnowledgeClient, KnowledgeClient
     from .mcp_servers.client import AsyncMcpServersClient, McpServersClient
@@ -107,6 +108,7 @@ class DtgAgentSdk:
         self._api_keys: typing.Optional[ApiKeysClient] = None
         self._organizations: typing.Optional[OrganizationsClient] = None
         self._knowledge: typing.Optional[KnowledgeClient] = None
+        self._cameras: typing.Optional[CamerasClient] = None
         self._mcp_servers: typing.Optional[McpServersClient] = None
 
     @property
@@ -148,6 +150,14 @@ class DtgAgentSdk:
 
             self._knowledge = KnowledgeClient(client_wrapper=self._client_wrapper)
         return self._knowledge
+
+    @property
+    def cameras(self):
+        if self._cameras is None:
+            from .cameras.client import CamerasClient  # noqa: E402
+
+            self._cameras = CamerasClient(client_wrapper=self._client_wrapper)
+        return self._cameras
 
     @property
     def mcp_servers(self):
@@ -268,6 +278,7 @@ class AsyncDtgAgentSdk:
         self._api_keys: typing.Optional[AsyncApiKeysClient] = None
         self._organizations: typing.Optional[AsyncOrganizationsClient] = None
         self._knowledge: typing.Optional[AsyncKnowledgeClient] = None
+        self._cameras: typing.Optional[AsyncCamerasClient] = None
         self._mcp_servers: typing.Optional[AsyncMcpServersClient] = None
 
     @property
@@ -309,6 +320,14 @@ class AsyncDtgAgentSdk:
 
             self._knowledge = AsyncKnowledgeClient(client_wrapper=self._client_wrapper)
         return self._knowledge
+
+    @property
+    def cameras(self):
+        if self._cameras is None:
+            from .cameras.client import AsyncCamerasClient  # noqa: E402
+
+            self._cameras = AsyncCamerasClient(client_wrapper=self._client_wrapper)
+        return self._cameras
 
     @property
     def mcp_servers(self):
